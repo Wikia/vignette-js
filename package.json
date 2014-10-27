@@ -1,0 +1,10 @@
+{
+  "name": "vignette",
+  "version": "1.0.0",
+  "description": "Client-side interface for Vignette thumbnailer",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Wikia/vignette-js.git"
+  },
+  "license": "MIT"
+}
