@@ -161,3 +161,4 @@ var Vignette = (function () {
     })();
     return Vignette;
 })();
+exports.Vignette = Vignette;

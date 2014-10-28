@@ -1,10 +1,5 @@
 /**
  * Helper module to generate the URL to a thumbnail of specific size from JS
- *
- * @author Piotr Bablok <piotrbablok@wikia-inc.com>
- * @author Federico "Lox" Lucignano <federico@wikia-inc.com>
- *
- * IMPORTANT: this code needs to be kept in sync with Apache rewrites and the thumbnailer servers' code
  */
 'use strict';
 
@@ -15,7 +10,7 @@ interface ImageUrlParameters {
 	imagePath: string;
 }
 
-export class Vignette {
+class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
 	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
