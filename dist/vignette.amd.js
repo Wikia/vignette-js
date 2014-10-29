@@ -162,5 +162,5 @@ define(["require", "exports"], function (require, exports) {
         })();
         return Vignette;
     })();
-    exports.Vignette = Vignette;
+    return Vignette;
 });
