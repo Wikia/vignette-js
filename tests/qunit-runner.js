@@ -19,10 +19,10 @@ testrunner.setup({
 
 testrunner.run({
     code: {
-		path: '../dist/vignette.cjs.js',
+		path: __dirname + '/../dist/vignette.cjs.js',
 		namespace: 'Vignette'
 	},
-    tests: 'vignette.js'
+    tests: __dirname + '/vignette.js'
 }, function (err, report) {
 	if (err) {
 		console.error(err)
