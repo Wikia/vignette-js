@@ -28,6 +28,10 @@ class Vignette {
 	};
 
 	static hasWebPSupport = (function () {
+		// Image is not defined in node.js
+		if (typeof Image === 'undefined') {
+			return false
+		}
 		// @see http://stackoverflow.com/a/5573422
 		var webP = new Image();
 		webP.src = 'data:image/webp;' +

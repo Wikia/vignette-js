@@ -152,6 +152,10 @@ define(["require", "exports"], function (require, exports) {
             zoomCropDown: 'zoom-crop-down'
         };
         Vignette.hasWebPSupport = (function () {
+            // Image is not defined in node.js
+            if (typeof Image === 'undefined') {
+                return false;
+            }
             // @see http://stackoverflow.com/a/5573422
             var webP = new Image();
             webP.src = 'data:image/webp;' + 'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';

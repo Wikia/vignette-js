@@ -18,6 +18,16 @@ testrunner.setup({
 });
 
 testrunner.run({
-    code: "../dist/vignette.js",
-    tests: "vignette.js"
-}, function () { console.log('Done'); });
+    code: {
+		path: '../dist/vignette.cjs.js',
+		namespace: 'Vignette'
+	},
+    tests: 'vignette.js'
+}, function (err, report) {
+	if (err) {
+		console.error(err)
+		process.exit(1);
+	} else {
+		console.log('Done');
+	}
+});
