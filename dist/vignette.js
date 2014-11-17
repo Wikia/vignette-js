@@ -89,6 +89,9 @@ var Vignette = (function () {
         }
         return clearedOptionsUrl;
     };
+    Vignette.isPrefix = function (segment) {
+        return ['images', 'avatars'].indexOf(segment) === -1;
+    };
     /**
      * Parses legacy image URL and returns object with URL parameters
      *
@@ -99,12 +102,13 @@ var Vignette = (function () {
      * @return {ImageUrlParameters}
      */
     Vignette.getParametersFromLegacyUrl = function (url) {
-        var urlParsed = this.legacyPathRegExp.exec(url);
+        var urlParsed = this.legacyPathRegExp.exec(url), hasPrefix = this.isPrefix(urlParsed[4]);
         return {
             domain: urlParsed[1],
             cacheBuster: urlParsed[2],
-            wikiaBucket: urlParsed[3],
-            imagePath: urlParsed[4]
+            wikiaBucket: hasPrefix ? urlParsed[3] : urlParsed[3] + '/' + urlParsed[4],
+            pathPrefix: hasPrefix ? urlParsed[4] : '',
+            imagePath: urlParsed[5]
         };
     };
     /**
@@ -134,12 +138,15 @@ var Vignette = (function () {
         if (this.hasWebPSupport) {
             url.push('&format=webp');
         }
+        if (urlParameters.pathPrefix) {
+            url.push('&path-prefix=' + urlParameters.pathPrefix);
+        }
         return url.join('');
     };
     Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
     Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
     Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
-    Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+\/\w+)\/(?:thumb\/)?(.*)$/;
+    Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+)\/(\w+)\/(?:thumb\/)?(.*)$/;
     Vignette.mode = {
         fixedAspectRatio: 'fixed-aspect-ratio',
         fixedAspectRatioDown: 'fixed-aspect-ratio-down',

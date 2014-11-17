@@ -155,6 +155,7 @@ QUnit.test('Thumbnailer parses legacy URL and returns list of parameters', funct
 				domain: 'wikia-dev.com',
 				cacheBuster: '20100311231730',
 				wikiaBucket: 'muppet/images',
+				pathPrefix: '',
 				imagePath: 'd/d9/Jim-and-jim.jpg'
 			}
 		},
@@ -164,6 +165,7 @@ QUnit.test('Thumbnailer parses legacy URL and returns list of parameters', funct
 				domain: 'wikia.nocookie.net',
 				cacheBuster: '20140419225911',
 				wikiaBucket: 'thelastofus/images',
+				pathPrefix: '',
 				imagePath: 'e/ef/Ellie.png'
 			}
 		},
@@ -173,6 +175,7 @@ QUnit.test('Thumbnailer parses legacy URL and returns list of parameters', funct
 				domain: 'wikia.nocookie.net',
 				cacheBuster: '0',
 				wikiaBucket: 'common/avatars',
+				pathPrefix: '',
 				imagePath: '7/7c/1271044.png'
 			}
 		}
@@ -241,4 +244,34 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 			testCase.expectedOutput
 		);
 	});
+});
+
+QUnit.test('Thumbnailer creates thumb URL for domains with prefixes', function () {
+	var testCases = [
+		{
+			url: 'http://img2.wikia.nocookie.net/__cb20070118203456/memoryalpha/en/images/3/3e/Picard_on_holiday.jpg',
+			mode: Vignette.mode.topCrop,
+			width: 300,
+			height: 300,
+			expectedOutput: 'http://vignette.wikia.nocookie.net/memoryalpha/images/3/3e/Picard_on_holiday.jpg/revision/latest/top-crop/width/300/height/300?cb=20070118203456&path-prefix=en'
+		},
+		{
+			url: 'http://img3.wikia.nocookie.net/__cb20140314170709/poznan/bg/images/4/49/IMG_0035.jpg',
+			mode: Vignette.mode.zoomCrop,
+			width: 150,
+			height: 260,
+			expectedOutput: 'http://vignette.wikia.nocookie.net/poznan/images/4/49/IMG_0035.jpg/revision/latest/zoom-crop/width/150/height/260?cb=20140314170709&path-prefix=bg'
+		}
+	];
+	testCases.forEach( function( testCase ) {
+		equal(
+			Vignette.getThumbURL(
+				testCase.url,
+				testCase.mode,
+				testCase.width,
+				testCase.height
+			),
+			testCase.expectedOutput
+		);
+	} );
 });
