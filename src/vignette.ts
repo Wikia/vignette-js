@@ -7,6 +7,7 @@ interface ImageUrlParameters {
 	domain: string;
 	cacheBuster: string;
 	wikiaBucket: string;
+	pathPrefix: string;
 	imagePath: string;
 }
 
@@ -14,7 +15,7 @@ class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
 	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
-	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+\/\w+)\/(?:thumb\/)?(.*)$/;
+	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+)\/(\w+)\/(?:thumb\/)?(.*)$/;
 
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
@@ -28,6 +29,10 @@ class Vignette {
 	};
 
 	static hasWebPSupport = (function () {
+		// Image is not defined in node.js
+		if (typeof Image === 'undefined') {
+			return false
+		}
 		// @see http://stackoverflow.com/a/5573422
 		var webP = new Image();
 		webP.src = 'data:image/webp;' +
@@ -137,6 +142,16 @@ class Vignette {
 	}
 
 	/**
+	 * Checks if a string is bucket prefix
+	 *
+	 * @param {String} segment
+	 * @returns {boolean}
+	 */
+	private static isPrefix(segment: string): boolean {
+		return ['images', 'avatars'].indexOf(segment) === -1
+	}
+
+	/**
 	 * Parses legacy image URL and returns object with URL parameters
 	 *
 	 * @private
@@ -146,13 +161,15 @@ class Vignette {
 	 * @return {ImageUrlParameters}
 	 */
 	private static getParametersFromLegacyUrl(url: string): ImageUrlParameters {
-		var urlParsed = this.legacyPathRegExp.exec(url);
+		var urlParsed = this.legacyPathRegExp.exec(url),
+			hasPrefix = this.isPrefix(urlParsed[4]);
 
 		return {
 			domain: urlParsed[1],
 			cacheBuster: urlParsed[2],
-			wikiaBucket: urlParsed[3],
-			imagePath: urlParsed[4]
+			wikiaBucket: hasPrefix ? urlParsed[3] : urlParsed[3] + '/' + urlParsed[4],
+			pathPrefix: hasPrefix ? urlParsed[4] : '',
+			imagePath: urlParsed[5]
 		};
 	}
 
@@ -189,6 +206,10 @@ class Vignette {
 
 		if (this.hasWebPSupport) {
 			url.push('&format=webp');
+		}
+
+		if (urlParameters.pathPrefix) {
+			url.push('&path-prefix=' + urlParameters.pathPrefix);
 		}
 
 		return url.join('');
