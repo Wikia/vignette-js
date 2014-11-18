@@ -263,7 +263,7 @@ QUnit.test('Thumbnailer creates thumb URL for domains with prefixes', function (
 			expectedOutput: 'http://vignette.wikia.nocookie.net/poznan/images/4/49/IMG_0035.jpg/revision/latest/zoom-crop/width/150/height/260?cb=20140314170709&path-prefix=bg'
 		}
 	];
-	testCases.forEach( function( testCase ) {
+	testCases.forEach(function (testCase) {
 		equal(
 			Vignette.getThumbURL(
 				testCase.url,
@@ -273,5 +273,5 @@ QUnit.test('Thumbnailer creates thumb URL for domains with prefixes', function (
 			),
 			testCase.expectedOutput
 		);
-	} );
+	});
 });
