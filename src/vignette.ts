@@ -194,7 +194,8 @@ class Vignette {
 		width: number,
 		height: number
 		): string {
-		var url: string;
+		var url: string,
+			offsets: string[];
 
 		url = 'http://vignette.' + urlParameters.domain +
 			'/' + urlParameters.wikiaBucket +
@@ -206,11 +207,12 @@ class Vignette {
 			url += '/' + width;
 		} else if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
 			url += '/width/' + width;
+
 			if (mode === Vignette.mode.windowCropFixed) {
 				 url += '/height/' + height;
 			}
-			urlParameters.imagePath = decodeURIComponent(urlParameters.imagePath);
-			var offsets = /(\d+),(\d+),(\d+),(\d+)-/.exec(urlParameters.imagePath);
+
+			offsets = /(\d+),(\d+),(\d+),(\d+)-/.exec(decodeURIComponent(urlParameters.imagePath));
 			url += '/x-offset/' + offsets[1] +
 				'/y-offset/' + offsets[2] +
 				'/window-width/' + (offsets[3] - offsets[1]) +
