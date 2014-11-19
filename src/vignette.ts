@@ -123,28 +123,39 @@ class Vignette {
 	 *
 	 * @return {String} The URL without the thumbnail options
 	 */
-	private static clearThumbOptions(url: string): string {
-		var clearedOptionsUrl: string;
-
+	public static clearThumbOptions(url: string): string {
 		if (this.isThumbnailerUrl(url)) {
-			clearedOptionsUrl = url.replace(this.thumbBasePathRegExp, '$1');
-		} else {
-			//The URL of a legacy thumbnail is in the following format:
-			//http://domain/image_path/image.ext/thumbnail_options.ext
-			//so return the URL till the last / to remove the options
-			clearedOptionsUrl = url.substring(0, url.lastIndexOf('/'));
+			return url.replace(this.thumbBasePathRegExp, '$1');
 		}
-		return clearedOptionsUrl;
+		return this.clearLegacyThumbSegments(url.split('/')).join('/');
 	}
 
 	/**
 	 * Gets base domain from url's domain
 	 *
 	 * @param {String} fullLegacyDomain
+	 *
 	 * @returns {String}
 	 */
 	private static getBaseDomain(fullLegacyDomain: string): string {
 		return fullLegacyDomain.match(this.getDomainRegExt)[1];
+	}
+
+	/**
+	 * Clear thumb segments from legacy url segments
+	 *
+	 * @param {String[]} urlSegments
+	 *
+	 * @returns {String[]}
+	 */
+	private static clearLegacyThumbSegments(urlSegments: string[]): string[] {
+		if (urlSegments.indexOf('thumb') > -1) {
+			urlSegments = urlSegments.filter(function (segment) {
+				return segment !== 'thumb'
+			});
+			urlSegments.pop();
+		}
+		return urlSegments;
 	}
 
 	/**
@@ -168,12 +179,8 @@ class Vignette {
 		result.domain = this.getBaseDomain(segments.shift());
 		result.cacheBuster = segments.shift().substr(4);
 
-		if (segments.indexOf('thumb') > -1) {
-			segments = segments.filter(function (segment) {
-				return segment !== 'thumb'
-			});
-			segments.pop();
-		}
+		segments = this.clearLegacyThumbSegments(segments);
+
 		// Last three segments are the image path
 		result.imagePath = segments.splice(-3, 3).join('/');
 		// First and last segments form the bucket name

@@ -73,26 +73,36 @@ var Vignette = (function () {
      * @return {String} The URL without the thumbnail options
      */
     Vignette.clearThumbOptions = function (url) {
-        var clearedOptionsUrl;
         if (this.isThumbnailerUrl(url)) {
-            clearedOptionsUrl = url.replace(this.thumbBasePathRegExp, '$1');
+            return url.replace(this.thumbBasePathRegExp, '$1');
         }
-        else {
-            //The URL of a legacy thumbnail is in the following format:
-            //http://domain/image_path/image.ext/thumbnail_options.ext
-            //so return the URL till the last / to remove the options
-            clearedOptionsUrl = url.substring(0, url.lastIndexOf('/'));
-        }
-        return clearedOptionsUrl;
+        return this.clearLegacyThumbSegments(url.split('/')).join('/');
     };
     /**
      * Gets base domain from url's domain
      *
      * @param {String} fullLegacyDomain
+     *
      * @returns {String}
      */
     Vignette.getBaseDomain = function (fullLegacyDomain) {
         return fullLegacyDomain.match(this.getDomainRegExt)[1];
+    };
+    /**
+     * Clear thumb segments from legacy url segments
+     *
+     * @param {String[]} urlSegments
+     *
+     * @returns {String[]}
+     */
+    Vignette.clearLegacyThumbSegments = function (urlSegments) {
+        if (urlSegments.indexOf('thumb') > -1) {
+            urlSegments = urlSegments.filter(function (segment) {
+                return segment !== 'thumb';
+            });
+            urlSegments.pop();
+        }
+        return urlSegments;
     };
     /**
      * Parses legacy image URL and returns object with URL parameters
@@ -109,12 +119,7 @@ var Vignette = (function () {
         segments.splice(0, 2);
         result.domain = this.getBaseDomain(segments.shift());
         result.cacheBuster = segments.shift().substr(4);
-        if (segments.indexOf('thumb') > -1) {
-            segments = segments.filter(function (segment) {
-                return segment !== 'thumb';
-            });
-            segments.pop();
-        }
+        segments = this.clearLegacyThumbSegments(segments);
         // Last three segments are the image path
         result.imagePath = segments.splice(-3, 3).join('/');
         // First and last segments form the bucket name
