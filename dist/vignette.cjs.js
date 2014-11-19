@@ -15,10 +15,11 @@ var Vignette = (function () {
      * @param {String} mode The thumbnailer mode, one from Vignette.mode
      * @param {Number} width The width of the thumbnail to fetch
      * @param {Number} height The height of the thumbnail to fetch
+     * @param {Object|null} config Optional parameters used for special thumbnail modes
      *
      * @return {String}
      */
-    Vignette.getThumbURL = function (url, mode, width, height) {
+    Vignette.getThumbURL = function (url, mode, width, height, config) {
         var urlParameters;
         // for now we handle only legacy urls as input
         if (this.isLegacyUrl(url)) {
@@ -27,6 +28,17 @@ var Vignette = (function () {
                 url = this.clearThumbOptions(url);
             }
             urlParameters = this.getParametersFromLegacyUrl(url);
+            if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
+                if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
+                    urlParameters['xOffset1'] = parseInt(config.xOffset1);
+                    urlParameters['yOffset1'] = parseInt(config.yOffset1);
+                    urlParameters['xOffset2'] = parseInt(config.xOffset2);
+                    urlParameters['yOffset2'] = parseInt(config.yOffset2);
+                }
+                else {
+                    throw 'Thumbnailer mode `' + mode + '` requires x and y offsets';
+                }
+            }
             url = this.createThumbnailUrl(urlParameters, mode, width, height);
         }
         return url;
@@ -89,6 +101,12 @@ var Vignette = (function () {
         }
         return clearedOptionsUrl;
     };
+    /**
+     * Checks if a string is bucket prefix
+     *
+     * @param {String} segment
+     * @returns {boolean}
+     */
     Vignette.isPrefix = function (segment) {
         return ['images', 'avatars'].indexOf(segment) === -1;
     };
@@ -124,24 +142,29 @@ var Vignette = (function () {
      * @return {String}
      */
     Vignette.createThumbnailUrl = function (urlParameters, mode, width, height) {
-        var url;
-        url = [
-            'http://vignette.' + urlParameters.domain,
-            '/' + urlParameters.wikiaBucket,
-            '/' + urlParameters.imagePath,
-            '/revision/latest',
-            '/' + mode,
-            '/width/' + width,
-            '/height/' + height,
-            '?cb=' + urlParameters.cacheBuster
-        ];
+        var url, offsets;
+        url = 'http://vignette.' + urlParameters.domain + '/' + urlParameters.wikiaBucket + '/' + urlParameters.imagePath + '/revision/latest' + '/' + mode;
+        if (mode === Vignette.mode.scaleToWidth) {
+            url += '/' + width;
+        }
+        else if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
+            url += '/width/' + width;
+            if (mode === Vignette.mode.windowCropFixed) {
+                url += '/height/' + height;
+            }
+            url += '/x-offset/' + urlParameters.xOffset1 + '/y-offset/' + urlParameters.yOffset1 + '/window-width/' + (urlParameters.xOffset2 - urlParameters.xOffset1) + '/window-height/' + (urlParameters.yOffset2 - urlParameters.yOffset1);
+        }
+        else {
+            url += '/width/' + width + '/height/' + height;
+        }
+        url += '?cb=' + urlParameters.cacheBuster;
         if (this.hasWebPSupport) {
-            url.push('&format=webp');
+            url += '&format=webp';
         }
         if (urlParameters.pathPrefix) {
-            url.push('&path-prefix=' + urlParameters.pathPrefix);
+            url += '&path-prefix=' + urlParameters.pathPrefix;
         }
-        return url.join('');
+        return url;
     };
     Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
     Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
@@ -150,10 +173,13 @@ var Vignette = (function () {
     Vignette.mode = {
         fixedAspectRatio: 'fixed-aspect-ratio',
         fixedAspectRatioDown: 'fixed-aspect-ratio-down',
+        scaleToWidth: 'scale-to-width',
         thumbnail: 'thumbnail',
         thumbnailDown: 'thumbnail-down',
         topCrop: 'top-crop',
         topCropDown: 'top-crop-down',
+        windowCrop: 'window-crop',
+        windowCropFixed: 'window-crop-fixed',
         zoomCrop: 'zoom-crop',
         zoomCropDown: 'zoom-crop-down'
     };

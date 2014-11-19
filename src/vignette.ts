@@ -9,6 +9,10 @@ interface ImageUrlParameters {
 	wikiaBucket: string;
 	pathPrefix: string;
 	imagePath: string;
+	xOffset1?: number;
+	xOffset2?: number;
+	yOffset1?: number;
+	yOffset2?: number;
 }
 
 class Vignette {
@@ -57,6 +61,7 @@ class Vignette {
 	 * @param {String} mode The thumbnailer mode, one from Vignette.mode
 	 * @param {Number} width The width of the thumbnail to fetch
 	 * @param {Number} height The height of the thumbnail to fetch
+	 * @param {Object|null} config Optional parameters used for special thumbnail modes
 	 *
 	 * @return {String}
 	 */
@@ -64,7 +69,8 @@ class Vignette {
 		url: string,
 		mode: string,
 		width: number,
-		height: number
+		height: number,
+		config: any
 		): string {
 		var urlParameters: ImageUrlParameters;
 
@@ -76,6 +82,18 @@ class Vignette {
 			}
 
 			urlParameters = this.getParametersFromLegacyUrl(url);
+
+			if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
+				if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
+					urlParameters['xOffset1'] = parseInt(config.xOffset1);
+					urlParameters['yOffset1'] = parseInt(config.yOffset1);
+					urlParameters['xOffset2'] = parseInt(config.xOffset2);
+					urlParameters['yOffset2'] = parseInt(config.yOffset2);
+				} else {
+					throw 'Thumbnailer mode `' + mode + '` requires x and y offsets';
+				}
+			}
+
 			url = this.createThumbnailUrl(urlParameters, mode, width, height);
 		}
 
@@ -212,11 +230,10 @@ class Vignette {
 				 url += '/height/' + height;
 			}
 
-			offsets = /(\d+),(\d+),(\d+),(\d+)-/.exec(decodeURIComponent(urlParameters.imagePath));
-			url += '/x-offset/' + offsets[1] +
-				'/y-offset/' + offsets[2] +
-				'/window-width/' + (offsets[3] - offsets[1]) +
-				'/window-height/' + (offsets[4] - offsets[2]);
+			url += '/x-offset/' + urlParameters.xOffset1 +
+				'/y-offset/' + urlParameters.yOffset1 +
+				'/window-width/' + (urlParameters.xOffset2 - urlParameters.xOffset1) +
+				'/window-height/' + (urlParameters.yOffset2 - urlParameters.yOffset1);
 		} else {
 			url += '/width/' + width +
 				'/height/' + height;
