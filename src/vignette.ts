@@ -15,7 +15,7 @@ class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
 	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
-	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+)\/(\w+)\/(?:thumb\/)?(.*)$/;
+	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
 
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
@@ -67,11 +67,6 @@ class Vignette {
 
 		// for now we handle only legacy urls as input
 		if (this.isLegacyUrl(url)) {
-			if (this.isLegacyThumbnailerUrl(url)) {
-				// URL points to a thumbnail, remove crop and size
-				url = this.clearThumbOptions(url);
-			}
-
 			urlParameters = this.getParametersFromLegacyUrl(url);
 			url = this.createThumbnailUrl(urlParameters, mode, width, height);
 		}
@@ -148,7 +143,11 @@ class Vignette {
 	 * @returns {boolean}
 	 */
 	private static isPrefix(segment: string): boolean {
-		return ['images', 'avatars'].indexOf(segment) === -1
+		return ['images', 'avatars'].indexOf(segment) === -1;
+	}
+
+	private static getDomain(fullLegacyDomain: string) {
+		return fullLegacyDomain.match(/(wikia-dev.com|wikia.nocookie.net)/)[1]
 	}
 
 	/**
@@ -161,17 +160,39 @@ class Vignette {
 	 * @return {ImageUrlParameters}
 	 */
 	private static getParametersFromLegacyUrl(url: string): ImageUrlParameters {
-		var urlParsed = this.legacyPathRegExp.exec(url),
-			hasPrefix = this.isPrefix(urlParsed[4]);
+		var segments = url.split('/'),
+			prefix: string[] = [],
+			bucket: string[] = [],
+			result: any = {},
+			nextSegment: string;
 
-		return {
-			domain: urlParsed[1],
-			cacheBuster: urlParsed[2],
-			wikiaBucket: hasPrefix ? urlParsed[3] : urlParsed[3] + '/' + urlParsed[4],
-			pathPrefix: hasPrefix ? urlParsed[4] : '',
-			imagePath: urlParsed[5]
-		};
+		// Remove protocol
+		segments.splice(0, 2);
+		result.domain = this.getDomain(segments.shift());
+		result.cacheBuster = segments.shift().substr(4);
+
+		if (segments.indexOf('thumb') > -1) {
+			segments = segments.filter(function (segment) {
+				return segment !== 'thumb'
+			});
+			segments.pop();
+		}
+		// Last three segments are the image path
+		result.imagePath = segments.splice(-3, 3).join('/');
+		// First and last segments form the bucket name
+		result.wikiaBucket = [segments.shift(), segments.pop()].join('/');
+		// The remaining segments are prefix
+		result.pathPrefix = segments.join('/');
+
+		return result;
 	}
+
+	/*
+		Idea:
+		- check for thumb if present remove the last param and thumb;
+		-
+	 */
+
 
 	/**
 	 * Constructs complete thumbnailer url

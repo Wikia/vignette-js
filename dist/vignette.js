@@ -22,10 +22,6 @@ var Vignette = (function () {
         var urlParameters;
         // for now we handle only legacy urls as input
         if (this.isLegacyUrl(url)) {
-            if (this.isLegacyThumbnailerUrl(url)) {
-                // URL points to a thumbnail, remove crop and size
-                url = this.clearThumbOptions(url);
-            }
             urlParameters = this.getParametersFromLegacyUrl(url);
             url = this.createThumbnailUrl(urlParameters, mode, width, height);
         }
@@ -89,8 +85,17 @@ var Vignette = (function () {
         }
         return clearedOptionsUrl;
     };
+    /**
+     * Checks if a string is bucket prefix
+     *
+     * @param {String} segment
+     * @returns {boolean}
+     */
     Vignette.isPrefix = function (segment) {
         return ['images', 'avatars'].indexOf(segment) === -1;
+    };
+    Vignette.getDomain = function (fullLegacyDomain) {
+        return fullLegacyDomain.match(/(wikia-dev.com|wikia.nocookie.net)/)[1];
     };
     /**
      * Parses legacy image URL and returns object with URL parameters
@@ -102,15 +107,30 @@ var Vignette = (function () {
      * @return {ImageUrlParameters}
      */
     Vignette.getParametersFromLegacyUrl = function (url) {
-        var urlParsed = this.legacyPathRegExp.exec(url), hasPrefix = this.isPrefix(urlParsed[4]);
-        return {
-            domain: urlParsed[1],
-            cacheBuster: urlParsed[2],
-            wikiaBucket: hasPrefix ? urlParsed[3] : urlParsed[3] + '/' + urlParsed[4],
-            pathPrefix: hasPrefix ? urlParsed[4] : '',
-            imagePath: urlParsed[5]
-        };
+        var segments = url.split('/'), prefix = [], bucket = [], result = {}, nextSegment;
+        // Remove protocol
+        segments.splice(0, 2);
+        result.domain = this.getDomain(segments.shift());
+        result.cacheBuster = segments.shift().substr(4);
+        if (segments.indexOf('thumb') > -1) {
+            segments = segments.filter(function (segment) {
+                return segment !== 'thumb';
+            });
+            segments.pop();
+        }
+        // Last three segments are the image path
+        result.imagePath = segments.splice(-3, 3).join('/');
+        // First and last segments form the bucket name
+        result.wikiaBucket = [segments.shift(), segments.pop()].join('/');
+        // The remaining segments are prefix
+        result.pathPrefix = segments.join('/');
+        return result;
     };
+    /*
+        Idea:
+        - check for thumb if present remove the last param and thumb;
+        -
+     */
     /**
      * Constructs complete thumbnailer url
      *
@@ -146,7 +166,7 @@ var Vignette = (function () {
     Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
     Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
     Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
-    Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+)\/(\w+)\/(?:thumb\/)?(.*)$/;
+    Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
     Vignette.mode = {
         fixedAspectRatio: 'fixed-aspect-ratio',
         fixedAspectRatioDown: 'fixed-aspect-ratio-down',
