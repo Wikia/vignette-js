@@ -4,11 +4,11 @@
 'use strict';
 
 interface ImageUrlParameters {
-	domain: string;
 	cacheBuster: string;
-	wikiaBucket: string;
-	pathPrefix: string;
+	domain: string;
 	imagePath: string;
+	pathPrefix: string;
+	wikiaBucket: string;
 }
 
 class Vignette {
@@ -20,10 +20,13 @@ class Vignette {
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
 		fixedAspectRatioDown: 'fixed-aspect-ratio-down',
+		scaleToWidth: 'scale-to-width',
 		thumbnail: 'thumbnail',
 		thumbnailDown: 'thumbnail-down',
 		topCrop: 'top-crop',
 		topCropDown: 'top-crop-down',
+		windowCrop: 'window-crop',
+		windowCropFixed: 'window-crop-fixed',
 		zoomCrop: 'zoom-crop',
 		zoomCropDown: 'zoom-crop-down'
 	};
@@ -191,27 +194,42 @@ class Vignette {
 		width: number,
 		height: number
 		): string {
-		var url: string[];
+		var url: string;
 
-		url = [
-			'http://vignette.' + urlParameters.domain,
-			'/' + urlParameters.wikiaBucket,
-			'/' + urlParameters.imagePath,
-			'/revision/latest',
-			'/' + mode,
-			'/width/' + width,
-			'/height/' + height,
-			'?cb=' + urlParameters.cacheBuster
-		];
+		url = 'http://vignette.' + urlParameters.domain +
+			'/' + urlParameters.wikiaBucket +
+			'/' + urlParameters.imagePath +
+			'/revision/latest' +
+			'/' + mode;
+
+		if (mode === Vignette.mode.scaleToWidth) {
+			url += '/' + width;
+		} else if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
+			url += '/width/' + width;
+			if (mode === Vignette.mode.windowCropFixed) {
+				 url += '/height/' + height;
+			}
+			urlParameters.imagePath = decodeURIComponent(urlParameters.imagePath);
+			var offsets = /(\d+),(\d+),(\d+),(\d+)-/.exec(urlParameters.imagePath);
+			url += '/x-offset/' + offsets[1] +
+				'/y-offset/' + offsets[2] +
+				'/window-width/' + (offsets[3] - offsets[1]) +
+				'/window-height/' + (offsets[4] - offsets[2]);
+		} else {
+			url += '/width/' + width +
+				'/height/' + height;
+		}
+
+		url += '?cb=' + urlParameters.cacheBuster;
 
 		if (this.hasWebPSupport) {
-			url.push('&format=webp');
+			url += '&format=webp';
 		}
 
 		if (urlParameters.pathPrefix) {
-			url.push('&path-prefix=' + urlParameters.pathPrefix);
+			url += '&path-prefix=' + urlParameters.pathPrefix;
 		}
 
-		return url.join('');
+		return url;
 	}
 }
