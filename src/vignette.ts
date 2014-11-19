@@ -4,11 +4,11 @@
 'use strict';
 
 interface ImageUrlParameters {
-	cacheBuster: string;
 	domain: string;
-	imagePath: string;
-	pathPrefix: string;
+	cacheBuster: string;
 	wikiaBucket: string;
+	pathPrefix: string;
+	imagePath: string;
 }
 
 class Vignette {
