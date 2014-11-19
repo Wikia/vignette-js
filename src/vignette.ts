@@ -12,9 +12,10 @@ interface ImageUrlParameters {
 }
 
 class Vignette {
-	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/
+	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/;
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
 	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
+	private static getDomainRegExt: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
 
 	public static mode: any = {
@@ -137,17 +138,13 @@ class Vignette {
 	}
 
 	/**
-	 * Checks if a string is bucket prefix
+	 * Gets base domain from url's domain
 	 *
-	 * @param {String} segment
-	 * @returns {boolean}
+	 * @param {String} fullLegacyDomain
+	 * @returns {String}
 	 */
-	private static isPrefix(segment: string): boolean {
-		return ['images', 'avatars'].indexOf(segment) === -1;
-	}
-
-	private static getDomain(fullLegacyDomain: string) {
-		return fullLegacyDomain.match(/(wikia-dev.com|wikia.nocookie.net)/)[1]
+	private static getBaseDomain(fullLegacyDomain: string): string {
+		return fullLegacyDomain.match(this.getDomainRegExt)[1];
 	}
 
 	/**
@@ -168,7 +165,7 @@ class Vignette {
 
 		// Remove protocol
 		segments.splice(0, 2);
-		result.domain = this.getDomain(segments.shift());
+		result.domain = this.getBaseDomain(segments.shift());
 		result.cacheBuster = segments.shift().substr(4);
 
 		if (segments.indexOf('thumb') > -1) {
@@ -186,13 +183,6 @@ class Vignette {
 
 		return result;
 	}
-
-	/*
-		Idea:
-		- check for thumb if present remove the last param and thumb;
-		-
-	 */
-
 
 	/**
 	 * Constructs complete thumbnailer url

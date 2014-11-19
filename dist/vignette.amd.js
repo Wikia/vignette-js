@@ -87,16 +87,13 @@ define(["require", "exports"], function (require, exports) {
             return clearedOptionsUrl;
         };
         /**
-         * Checks if a string is bucket prefix
+         * Gets base domain from url's domain
          *
-         * @param {String} segment
-         * @returns {boolean}
+         * @param {String} fullLegacyDomain
+         * @returns {String}
          */
-        Vignette.isPrefix = function (segment) {
-            return ['images', 'avatars'].indexOf(segment) === -1;
-        };
-        Vignette.getDomain = function (fullLegacyDomain) {
-            return fullLegacyDomain.match(/(wikia-dev.com|wikia.nocookie.net)/)[1];
+        Vignette.getBaseDomain = function (fullLegacyDomain) {
+            return fullLegacyDomain.match(this.getDomainRegExt)[1];
         };
         /**
          * Parses legacy image URL and returns object with URL parameters
@@ -111,7 +108,7 @@ define(["require", "exports"], function (require, exports) {
             var segments = url.split('/'), prefix = [], bucket = [], result = {}, nextSegment;
             // Remove protocol
             segments.splice(0, 2);
-            result.domain = this.getDomain(segments.shift());
+            result.domain = this.getBaseDomain(segments.shift());
             result.cacheBuster = segments.shift().substr(4);
             if (segments.indexOf('thumb') > -1) {
                 segments = segments.filter(function (segment) {
@@ -127,11 +124,6 @@ define(["require", "exports"], function (require, exports) {
             result.pathPrefix = segments.join('/');
             return result;
         };
-        /*
-            Idea:
-            - check for thumb if present remove the last param and thumb;
-            -
-         */
         /**
          * Constructs complete thumbnailer url
          *
@@ -167,6 +159,7 @@ define(["require", "exports"], function (require, exports) {
         Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
         Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
         Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
+        Vignette.getDomainRegExt = /(wikia-dev.com|wikia.nocookie.net)/;
         Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
         Vignette.mode = {
             fixedAspectRatio: 'fixed-aspect-ratio',
