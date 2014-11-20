@@ -81,9 +81,9 @@ class Vignette {
 		): string {
 		var urlParameters: ImageUrlParameters,
 			sizing: Sizing = {
-				mode: mode;
-				width: width;
-				height: height;
+				mode: mode,
+				width: width,
+				height: height,
 			};
 
 		// for now we handle only legacy urls as input
@@ -243,7 +243,7 @@ class Vignette {
 	 */
 	private static createThumbnailUrl(
 		urlParameters: ImageUrlParameters,
-		sizing: Sizing,
+		sizing: Sizing
 		): string {
 		var url	= [
 			'http://vignette.' + urlParameters.domain,
