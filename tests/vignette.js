@@ -31,32 +31,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 	});
 });
 
-QUnit.test('Thumbnailer verifies legacy thumbnailer URL', function () {
-	var testCases = [
-		{
-			url: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png' +
-			'/200px-0%2C493%2C0%2C493-Ellie.png',
-			expectedOutput: true
-		},
-		{
-			url: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png/100px-1271044.png.jpg',
-			expectedOutput: true
-		},
-		{
-			url: 'http://img2.wikia.nocookie.net/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
-			expectedOutput: false
-		},
-		{
-			url: 'http://vignette.wikia-dev.com/thelastofus/9/99/Robert.png',
-			expectedOutput: false
-		}
-	];
-
-	testCases.forEach(function (testCase) {
-		equal(Vignette.isLegacyThumbnailerUrl(testCase.url), testCase.expectedOutput);
-	});
-});
-
 QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 	var testCases = [
 		{
@@ -124,16 +98,16 @@ QUnit.test('Thumbnailer clears thumb options from URL', function () {
 		{
 			url: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png' +
 			'/200px-0%2C493%2C0%2C493-Ellie.png',
-			expectedOutput: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png'
+			expectedOutput: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/e/ef/Ellie.png'
 		},
 		{
 			url: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png' +
 			'/200px-0%2C493%2C0%2C493-Ellie.png',
-			expectedOutput: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png'
+			expectedOutput: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/e/ef/Ellie.png'
 		},
 		{
 			url: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png/100px-1271044.png.jpg',
-			expectedOutput: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png'
+			expectedOutput: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/7/7c/1271044.png'
 		},
 		{
 			url: 'http://vignette.wikia.nocookie.net/muppet/d/d9/Jim-and-jim.jpg/revision/latest' +
@@ -160,7 +134,7 @@ QUnit.test('Thumbnailer parses legacy URL and returns list of parameters', funct
 			}
 		},
 		{
-			url: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png',
+			url: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png/200px-0%2C493%2C0%2C493-Ellie.png',
 			expectedOutput: {
 				domain: 'wikia.nocookie.net',
 				cacheBuster: '20140419225911',
@@ -170,7 +144,7 @@ QUnit.test('Thumbnailer parses legacy URL and returns list of parameters', funct
 			}
 		},
 		{
-			url: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png',
+			url: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png/100px-1271044.png.jpg',
 			expectedOutput: {
 				domain: 'wikia.nocookie.net',
 				cacheBuster: '0',
@@ -261,6 +235,27 @@ QUnit.test('Thumbnailer creates thumb URL for domains with prefixes', function (
 			width: 150,
 			height: 260,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/poznan/images/4/49/IMG_0035.jpg/revision/latest/zoom-crop/width/150/height/260?cb=20140314170709&path-prefix=bg'
+		},
+		{
+			url: 'http://img3.wikia.nocookie.net/__cb20140314170709/p__/psychusa/images/a/ab/Upload2.jpg',
+			mode: Vignette.mode.zoomCrop,
+			width: 150,
+			height: 260,
+			expectedOutput: 'http://vignette.wikia.nocookie.net/p__/images/a/ab/Upload2.jpg/revision/latest/zoom-crop/width/150/height/260?cb=20140314170709&path-prefix=psychusa'
+		},
+		{
+			url: 'http://img3.wikia.nocookie.net/__cb20140314170709/p__/pokemanshop/zh/images/1/11/002.jpg',
+			mode: Vignette.mode.zoomCrop,
+			width: 150,
+			height: 260,
+			expectedOutput: 'http://vignette.wikia.nocookie.net/p__/images/1/11/002.jpg/revision/latest/zoom-crop/width/150/height/260?cb=20140314170709&path-prefix=pokemanshop/zh'
+		},
+		{
+			url: 'http://img2.wikia.nocookie.net/__cb20111213104442/swtor/ru/images/thumb/f/fe/Jediknightnew_icon.png/200px-43%2C286%2C0%2C121-Jediknightnew_icon.png',
+			mode: Vignette.mode.zoomCrop,
+			width: 150,
+			height: 260,
+			expectedOutput: 'http://vignette.wikia.nocookie.net/swtor/images/f/fe/Jediknightnew_icon.png/revision/latest/zoom-crop/width/150/height/260?cb=20111213104442&path-prefix=ru'
 		}
 	];
 	testCases.forEach(function (testCase) {
