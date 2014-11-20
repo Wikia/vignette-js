@@ -12,8 +12,9 @@ interface ImageUrlParameters {
 }
 
 class Vignette {
-	private static isVignetteRegExp: RegExp = /\/\/vignette\d?\.wikia/;
+	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/;
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
+	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
 	private static getDomainRegExt: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
 
@@ -75,7 +76,7 @@ class Vignette {
 	}
 
 	/**
-	 * Checks if url points to vignette
+	 * Checks if url points to thumbnailer
 	 *
 	 * @public
 	 *
@@ -83,8 +84,21 @@ class Vignette {
 	 *
 	 * @return {Boolean}
 	 */
-	static isVignetteUrl(url: string): boolean {
-		return url && this.isVignetteRegExp.test(url);
+	static isThumbnailerUrl(url: string): boolean {
+		return url && this.imagePathRegExp.test(url);
+	}
+
+	/**
+	 * Checks if url points to legacy thumbnailer
+	 *
+	 * @private
+	 *
+	 * @param {String} url
+	 *
+	 * @return {Boolean}
+	 */
+	private static isLegacyThumbnailerUrl(url: string): boolean {
+		return url && this.legacyThumbPathRegExp.test(url);
 	}
 
 	/**
@@ -110,7 +124,7 @@ class Vignette {
 	 * @return {String} The URL without the thumbnail options
 	 */
 	public static clearThumbOptions(url: string): string {
-		if (this.isVignetteUrl(url)) {
+		if (this.isThumbnailerUrl(url)) {
 			return url.replace(this.thumbBasePathRegExp, '$1');
 		}
 		return this.clearLegacyThumbSegments(url.split('/')).join('/');

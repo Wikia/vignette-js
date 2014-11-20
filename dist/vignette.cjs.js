@@ -28,7 +28,7 @@ var Vignette = (function () {
         return url;
     };
     /**
-     * Checks if url points to vignette
+     * Checks if url points to thumbnailer
      *
      * @public
      *
@@ -36,8 +36,20 @@ var Vignette = (function () {
      *
      * @return {Boolean}
      */
-    Vignette.isVignetteUrl = function (url) {
-        return url && this.isVignetteRegExp.test(url);
+    Vignette.isThumbnailerUrl = function (url) {
+        return url && this.imagePathRegExp.test(url);
+    };
+    /**
+     * Checks if url points to legacy thumbnailer
+     *
+     * @private
+     *
+     * @param {String} url
+     *
+     * @return {Boolean}
+     */
+    Vignette.isLegacyThumbnailerUrl = function (url) {
+        return url && this.legacyThumbPathRegExp.test(url);
     };
     /**
      * Checks if url points to legacy image URL
@@ -61,7 +73,7 @@ var Vignette = (function () {
      * @return {String} The URL without the thumbnail options
      */
     Vignette.clearThumbOptions = function (url) {
-        if (this.isVignetteUrl(url)) {
+        if (this.isThumbnailerUrl(url)) {
             return url.replace(this.thumbBasePathRegExp, '$1');
         }
         return this.clearLegacyThumbSegments(url.split('/')).join('/');
@@ -92,6 +104,19 @@ var Vignette = (function () {
     };
     /**
      * Parses legacy image URL and returns object with URL parameters
+     *
+     * The logic behind handling the legacy URLs:
+     *   - the URL is split into segments by `/`;
+     *   - first two segments `http://` are removed;
+     *   - next segment is the domain name;
+     *   - next segment is the cachebuster value with `__cb` in front so we use `substr()`
+     *     to get rid of the prefix;
+     *   - clearLegacyThumbSegments is called which clears the `thumb` and last segment from
+     *     the URL if it is a thumbnail;
+     *   - the last three segments are the `imagePath` so we splice them from the array;
+     *   - what is left is the `wikiaBucket`, which is the first and the last element of
+     *     the array, these get removed from the array;
+     *   - what is left in `segments` (if any) are the prefix segments so they go to `pathPrefix`;
      *
      * @private
      *
@@ -145,8 +170,9 @@ var Vignette = (function () {
         }
         return url.join('');
     };
-    Vignette.isVignetteRegExp = /\/\/vignette\d?\.wikia/;
+    Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
     Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
+    Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
     Vignette.getDomainRegExt = /(wikia-dev.com|wikia.nocookie.net)/;
     Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
     Vignette.mode = {

@@ -62,7 +62,7 @@ QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 	];
 
 	testCases.forEach(function (testCase) {
-		equal(Vignette.isVignetteUrl(testCase.url), testCase.expectedOutput);
+		equal(Vignette.isThumbnailerUrl(testCase.url), testCase.expectedOutput);
 	});
 });
 
