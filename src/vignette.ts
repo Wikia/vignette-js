@@ -117,8 +117,6 @@ class Vignette {
 	/**
 	 * Removes the thumbnail options part from a thumbnail URL
 	 *
-	 * @private
-	 *
 	 * @param {String} url The URL of a thumbnail
 	 *
 	 * @return {String} The URL without the thumbnail options
