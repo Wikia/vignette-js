@@ -145,6 +145,19 @@ class Vignette {
 	/**
 	 * Parses legacy image URL and returns object with URL parameters
 	 *
+	 * The logic behind handling the legacy URLs:
+	 *   - the URL is split into segments by `/`;
+	 *   - first two segments `http://` are removed;
+	 *   - next segment is the domain name;
+	 *   - next segment is the cachebuster value with `__cb` in front so we use `substr()`
+	 *     to get rid of the prefix;
+	 *   - clearLegacyThumbSegments is called which clears the `thumb` and last segment from
+	 *     the URL if it is a thumbnail;
+	 *   - the last three segments are the `imagePath` so we splice them from the array;
+	 *   - what is left is the `wikiaBucket`, which is the first and the last element of
+	 *     the array, these get removed from the array;
+	 *   - what is left in `segments` (if any) are the prefix segments so they go to `pathPrefix`;
+	 *
 	 * @private
 	 *
 	 * @param {String} url
