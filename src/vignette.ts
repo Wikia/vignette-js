@@ -212,43 +212,42 @@ class Vignette {
 		width: number,
 		height: number
 		): string {
-		var url: string,
-			offsets: string[];
-
-		url = 'http://vignette.' + urlParameters.domain +
-			'/' + urlParameters.wikiaBucket +
-			'/' + urlParameters.imagePath +
-			'/revision/latest' +
-			'/' + mode;
+		var url	= [
+			'http://vignette.' + urlParameters.domain,
+			'/' + urlParameters.wikiaBucket,
+			'/' + urlParameters.imagePath,
+			'/revision/latest',
+			'/' + mode
+		];
 
 		if (mode === Vignette.mode.scaleToWidth) {
-			url += '/' + width;
+			url.push('/' + width);
 		} else if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
-			url += '/width/' + width;
+			url.push('/width/' + width);
 
 			if (mode === Vignette.mode.windowCropFixed) {
-				 url += '/height/' + height;
+				 url.push('/height/' + height);
 			}
 
-			url += '/x-offset/' + urlParameters.xOffset1 +
-				'/y-offset/' + urlParameters.yOffset1 +
-				'/window-width/' + (urlParameters.xOffset2 - urlParameters.xOffset1) +
-				'/window-height/' + (urlParameters.yOffset2 - urlParameters.yOffset1);
+			url.push('/x-offset/' + urlParameters.xOffset1);
+			url.push('/y-offset/' + urlParameters.yOffset1);
+			url.push('/window-width/' + (urlParameters.xOffset2 - urlParameters.xOffset1));
+			url.push('/window-height/' + (urlParameters.yOffset2 - urlParameters.yOffset1));
 		} else {
-			url += '/width/' + width +
-				'/height/' + height;
+			url.push('/width/' + width);
+			url.push('/height/' + height);
 		}
 
-		url += '?cb=' + urlParameters.cacheBuster;
+		url.push('?cb=' + urlParameters.cacheBuster);
 
 		if (this.hasWebPSupport) {
-			url += '&format=webp';
+			url.push('&format=webp');
 		}
 
 		if (urlParameters.pathPrefix) {
-			url += '&path-prefix=' + urlParameters.pathPrefix;
+			url.push('&path-prefix=' + urlParameters.pathPrefix);
 		}
 
-		return url;
+		return url.join('');
 	}
 }
