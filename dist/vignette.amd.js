@@ -29,7 +29,7 @@ define(["require", "exports"], function (require, exports) {
             return url;
         };
         /**
-         * Checks if url points to thumbnailer
+         * Checks if url points to vignette
          *
          * @public
          *
@@ -37,20 +37,8 @@ define(["require", "exports"], function (require, exports) {
          *
          * @return {Boolean}
          */
-        Vignette.isThumbnailerUrl = function (url) {
-            return url && this.imagePathRegExp.test(url);
-        };
-        /**
-         * Checks if url points to legacy thumbnailer
-         *
-         * @private
-         *
-         * @param {String} url
-         *
-         * @return {Boolean}
-         */
-        Vignette.isLegacyThumbnailerUrl = function (url) {
-            return url && this.legacyThumbPathRegExp.test(url);
+        Vignette.isVignetteUrl = function (url) {
+            return url && this.isVignetteRegExp.test(url);
         };
         /**
          * Checks if url points to legacy image URL
@@ -74,7 +62,7 @@ define(["require", "exports"], function (require, exports) {
          * @return {String} The URL without the thumbnail options
          */
         Vignette.clearThumbOptions = function (url) {
-            if (this.isThumbnailerUrl(url)) {
+            if (this.isVignetteUrl(url)) {
                 return url.replace(this.thumbBasePathRegExp, '$1');
             }
             return this.clearLegacyThumbSegments(url.split('/')).join('/');
@@ -98,10 +86,8 @@ define(["require", "exports"], function (require, exports) {
          */
         Vignette.clearLegacyThumbSegments = function (urlSegments) {
             if (urlSegments.indexOf('thumb') > -1) {
-                urlSegments = urlSegments.filter(function (segment) {
-                    return segment !== 'thumb';
-                });
-                urlSegments.pop();
+                // remove `thumb` and the last segment from the array
+                return urlSegments.filter(function (segment) { return segment != 'thumb'; }).slice(0, -1);
             }
             return urlSegments;
         };
@@ -142,8 +128,7 @@ define(["require", "exports"], function (require, exports) {
          * @return {String}
          */
         Vignette.createThumbnailUrl = function (urlParameters, mode, width, height) {
-            var url;
-            url = [
+            var url = [
                 'http://vignette.' + urlParameters.domain,
                 '/' + urlParameters.wikiaBucket,
                 '/' + urlParameters.imagePath,
@@ -161,9 +146,8 @@ define(["require", "exports"], function (require, exports) {
             }
             return url.join('');
         };
-        Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
+        Vignette.isVignetteRegExp = /\/\/vignette\d?\.wikia/;
         Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
-        Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
         Vignette.getDomainRegExt = /(wikia-dev.com|wikia.nocookie.net)/;
         Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
         Vignette.mode = {

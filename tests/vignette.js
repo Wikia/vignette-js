@@ -31,32 +31,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 	});
 });
 
-QUnit.test('Thumbnailer verifies legacy thumbnailer URL', function () {
-	var testCases = [
-		{
-			url: 'http://img2.wikia.nocookie.net/__cb20140419225911/thelastofus/images/thumb/e/ef/Ellie.png' +
-			'/200px-0%2C493%2C0%2C493-Ellie.png',
-			expectedOutput: true
-		},
-		{
-			url: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png/100px-1271044.png.jpg',
-			expectedOutput: true
-		},
-		{
-			url: 'http://img2.wikia.nocookie.net/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
-			expectedOutput: false
-		},
-		{
-			url: 'http://vignette.wikia-dev.com/thelastofus/9/99/Robert.png',
-			expectedOutput: false
-		}
-	];
-
-	testCases.forEach(function (testCase) {
-		equal(Vignette.isLegacyThumbnailerUrl(testCase.url), testCase.expectedOutput);
-	});
-});
-
 QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 	var testCases = [
 		{
@@ -88,7 +62,7 @@ QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 	];
 
 	testCases.forEach(function (testCase) {
-		equal(Vignette.isThumbnailerUrl(testCase.url), testCase.expectedOutput);
+		equal(Vignette.isVignetteUrl(testCase.url), testCase.expectedOutput);
 	});
 });
 

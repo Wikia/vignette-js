@@ -12,9 +12,8 @@ interface ImageUrlParameters {
 }
 
 class Vignette {
-	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/;
+	private static isVignetteRegExp: RegExp = /\/\/vignette\d?\.wikia/;
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
-	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
 	private static getDomainRegExt: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
 
@@ -76,7 +75,7 @@ class Vignette {
 	}
 
 	/**
-	 * Checks if url points to thumbnailer
+	 * Checks if url points to vignette
 	 *
 	 * @public
 	 *
@@ -84,21 +83,8 @@ class Vignette {
 	 *
 	 * @return {Boolean}
 	 */
-	static isThumbnailerUrl(url: string): boolean {
-		return url && this.imagePathRegExp.test(url);
-	}
-
-	/**
-	 * Checks if url points to legacy thumbnailer
-	 *
-	 * @private
-	 *
-	 * @param {String} url
-	 *
-	 * @return {Boolean}
-	 */
-	private static isLegacyThumbnailerUrl(url: string): boolean {
-		return url && this.legacyThumbPathRegExp.test(url);
+	static isVignetteUrl(url: string): boolean {
+		return url && this.isVignetteRegExp.test(url);
 	}
 
 	/**
@@ -124,7 +110,7 @@ class Vignette {
 	 * @return {String} The URL without the thumbnail options
 	 */
 	public static clearThumbOptions(url: string): string {
-		if (this.isThumbnailerUrl(url)) {
+		if (this.isVignetteUrl(url)) {
 			return url.replace(this.thumbBasePathRegExp, '$1');
 		}
 		return this.clearLegacyThumbSegments(url.split('/')).join('/');
@@ -150,10 +136,8 @@ class Vignette {
 	 */
 	private static clearLegacyThumbSegments(urlSegments: string[]): string[] {
 		if (urlSegments.indexOf('thumb') > -1) {
-			urlSegments = urlSegments.filter(function (segment) {
-				return segment !== 'thumb'
-			});
-			urlSegments.pop();
+			// remove `thumb` and the last segment from the array
+			return urlSegments.filter((segment) => segment != 'thumb' ).slice(0, -1);
 		}
 		return urlSegments;
 	}
@@ -209,9 +193,7 @@ class Vignette {
 		width: number,
 		height: number
 		): string {
-		var url: string[];
-
-		url = [
+		var url	= [
 			'http://vignette.' + urlParameters.domain,
 			'/' + urlParameters.wikiaBucket,
 			'/' + urlParameters.imagePath,
