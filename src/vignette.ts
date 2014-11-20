@@ -16,10 +16,11 @@ interface ImageUrlParameters {
 }
 
 class Vignette {
-	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/
+	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/;
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
 	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
-	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+)\/(\w+)\/(?:thumb\/)?(.*)$/;
+	private static getDomainRegExt: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
+	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
 
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
@@ -76,11 +77,6 @@ class Vignette {
 
 		// for now we handle only legacy urls as input
 		if (this.isLegacyUrl(url)) {
-			if (this.isLegacyThumbnailerUrl(url)) {
-				// URL points to a thumbnail, remove crop and size
-				url = this.clearThumbOptions(url);
-			}
-
 			urlParameters = this.getParametersFromLegacyUrl(url);
 
 			if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
@@ -142,38 +138,58 @@ class Vignette {
 	/**
 	 * Removes the thumbnail options part from a thumbnail URL
 	 *
-	 * @private
-	 *
 	 * @param {String} url The URL of a thumbnail
 	 *
 	 * @return {String} The URL without the thumbnail options
 	 */
-	private static clearThumbOptions(url: string): string {
-		var clearedOptionsUrl: string;
-
+	public static clearThumbOptions(url: string): string {
 		if (this.isThumbnailerUrl(url)) {
-			clearedOptionsUrl = url.replace(this.thumbBasePathRegExp, '$1');
-		} else {
-			//The URL of a legacy thumbnail is in the following format:
-			//http://domain/image_path/image.ext/thumbnail_options.ext
-			//so return the URL till the last / to remove the options
-			clearedOptionsUrl = url.substring(0, url.lastIndexOf('/'));
+			return url.replace(this.thumbBasePathRegExp, '$1');
 		}
-		return clearedOptionsUrl;
+		return this.clearLegacyThumbSegments(url.split('/')).join('/');
 	}
 
 	/**
-	 * Checks if a string is bucket prefix
+	 * Gets base domain from url's domain
 	 *
-	 * @param {String} segment
-	 * @returns {boolean}
+	 * @param {String} fullLegacyDomain
+	 *
+	 * @returns {String}
 	 */
-	private static isPrefix(segment: string): boolean {
-		return ['images', 'avatars'].indexOf(segment) === -1
+	private static getBaseDomain(fullLegacyDomain: string): string {
+		return fullLegacyDomain.match(this.getDomainRegExt)[1];
+	}
+
+	/**
+	 * Clear thumb segments from legacy url segments
+	 *
+	 * @param {String[]} urlSegments
+	 *
+	 * @returns {String[]}
+	 */
+	private static clearLegacyThumbSegments(urlSegments: string[]): string[] {
+		if (urlSegments.indexOf('thumb') > -1) {
+			// remove `thumb` and the last segment from the array
+			return urlSegments.filter((segment) => segment != 'thumb' ).slice(0, -1);
+		}
+		return urlSegments;
 	}
 
 	/**
 	 * Parses legacy image URL and returns object with URL parameters
+	 *
+	 * The logic behind handling the legacy URLs:
+	 *   - the URL is split into segments by `/`;
+	 *   - first two segments `http://` are removed;
+	 *   - next segment is the domain name;
+	 *   - next segment is the cachebuster value with `__cb` in front so we use `substr()`
+	 *     to get rid of the prefix;
+	 *   - clearLegacyThumbSegments is called which clears the `thumb` and last segment from
+	 *     the URL if it is a thumbnail;
+	 *   - the last three segments are the `imagePath` so we splice them from the array;
+	 *   - what is left is the `wikiaBucket`, which is the first and the last element of
+	 *     the array, these get removed from the array;
+	 *   - what is left in `segments` (if any) are the prefix segments so they go to `pathPrefix`;
 	 *
 	 * @private
 	 *
@@ -182,16 +198,24 @@ class Vignette {
 	 * @return {ImageUrlParameters}
 	 */
 	private static getParametersFromLegacyUrl(url: string): ImageUrlParameters {
-		var urlParsed = this.legacyPathRegExp.exec(url),
-			hasPrefix = this.isPrefix(urlParsed[4]);
+		var segments = url.split('/'),
+			result: any = {};
 
-		return {
-			domain: urlParsed[1],
-			cacheBuster: urlParsed[2],
-			wikiaBucket: hasPrefix ? urlParsed[3] : urlParsed[3] + '/' + urlParsed[4],
-			pathPrefix: hasPrefix ? urlParsed[4] : '',
-			imagePath: urlParsed[5]
-		};
+		// Remove protocol
+		segments.splice(0, 2);
+		result.domain = this.getBaseDomain(segments.shift());
+		result.cacheBuster = segments.shift().substr(4);
+
+		segments = this.clearLegacyThumbSegments(segments);
+
+		// Last three segments are the image path
+		result.imagePath = segments.splice(-3, 3).join('/');
+		// First and last segments form the bucket name
+		result.wikiaBucket = [segments.shift(), segments.pop()].join('/');
+		// The remaining segments are prefix
+		result.pathPrefix = segments.join('/');
+
+		return result;
 	}
 
 	/**

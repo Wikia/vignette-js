@@ -23,10 +23,6 @@ var Vignette = (function () {
         var urlParameters;
         // for now we handle only legacy urls as input
         if (this.isLegacyUrl(url)) {
-            if (this.isLegacyThumbnailerUrl(url)) {
-                // URL points to a thumbnail, remove crop and size
-                url = this.clearThumbOptions(url);
-            }
             urlParameters = this.getParametersFromLegacyUrl(url);
             if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
                 if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
@@ -82,36 +78,55 @@ var Vignette = (function () {
     /**
      * Removes the thumbnail options part from a thumbnail URL
      *
-     * @private
-     *
      * @param {String} url The URL of a thumbnail
      *
      * @return {String} The URL without the thumbnail options
      */
     Vignette.clearThumbOptions = function (url) {
-        var clearedOptionsUrl;
         if (this.isThumbnailerUrl(url)) {
-            clearedOptionsUrl = url.replace(this.thumbBasePathRegExp, '$1');
+            return url.replace(this.thumbBasePathRegExp, '$1');
         }
-        else {
-            //The URL of a legacy thumbnail is in the following format:
-            //http://domain/image_path/image.ext/thumbnail_options.ext
-            //so return the URL till the last / to remove the options
-            clearedOptionsUrl = url.substring(0, url.lastIndexOf('/'));
-        }
-        return clearedOptionsUrl;
+        return this.clearLegacyThumbSegments(url.split('/')).join('/');
     };
     /**
-     * Checks if a string is bucket prefix
+     * Gets base domain from url's domain
      *
-     * @param {String} segment
-     * @returns {boolean}
+     * @param {String} fullLegacyDomain
+     *
+     * @returns {String}
      */
-    Vignette.isPrefix = function (segment) {
-        return ['images', 'avatars'].indexOf(segment) === -1;
+    Vignette.getBaseDomain = function (fullLegacyDomain) {
+        return fullLegacyDomain.match(this.getDomainRegExt)[1];
+    };
+    /**
+     * Clear thumb segments from legacy url segments
+     *
+     * @param {String[]} urlSegments
+     *
+     * @returns {String[]}
+     */
+    Vignette.clearLegacyThumbSegments = function (urlSegments) {
+        if (urlSegments.indexOf('thumb') > -1) {
+            // remove `thumb` and the last segment from the array
+            return urlSegments.filter(function (segment) { return segment != 'thumb'; }).slice(0, -1);
+        }
+        return urlSegments;
     };
     /**
      * Parses legacy image URL and returns object with URL parameters
+     *
+     * The logic behind handling the legacy URLs:
+     *   - the URL is split into segments by `/`;
+     *   - first two segments `http://` are removed;
+     *   - next segment is the domain name;
+     *   - next segment is the cachebuster value with `__cb` in front so we use `substr()`
+     *     to get rid of the prefix;
+     *   - clearLegacyThumbSegments is called which clears the `thumb` and last segment from
+     *     the URL if it is a thumbnail;
+     *   - the last three segments are the `imagePath` so we splice them from the array;
+     *   - what is left is the `wikiaBucket`, which is the first and the last element of
+     *     the array, these get removed from the array;
+     *   - what is left in `segments` (if any) are the prefix segments so they go to `pathPrefix`;
      *
      * @private
      *
@@ -120,14 +135,19 @@ var Vignette = (function () {
      * @return {ImageUrlParameters}
      */
     Vignette.getParametersFromLegacyUrl = function (url) {
-        var urlParsed = this.legacyPathRegExp.exec(url), hasPrefix = this.isPrefix(urlParsed[4]);
-        return {
-            domain: urlParsed[1],
-            cacheBuster: urlParsed[2],
-            wikiaBucket: hasPrefix ? urlParsed[3] : urlParsed[3] + '/' + urlParsed[4],
-            pathPrefix: hasPrefix ? urlParsed[4] : '',
-            imagePath: urlParsed[5]
-        };
+        var segments = url.split('/'), result = {};
+        // Remove protocol
+        segments.splice(0, 2);
+        result.domain = this.getBaseDomain(segments.shift());
+        result.cacheBuster = segments.shift().substr(4);
+        segments = this.clearLegacyThumbSegments(segments);
+        // Last three segments are the image path
+        result.imagePath = segments.splice(-3, 3).join('/');
+        // First and last segments form the bucket name
+        result.wikiaBucket = [segments.shift(), segments.pop()].join('/');
+        // The remaining segments are prefix
+        result.pathPrefix = segments.join('/');
+        return result;
     };
     /**
      * Constructs complete thumbnailer url
@@ -142,34 +162,44 @@ var Vignette = (function () {
      * @return {String}
      */
     Vignette.createThumbnailUrl = function (urlParameters, mode, width, height) {
-        var url, offsets;
-        url = 'http://vignette.' + urlParameters.domain + '/' + urlParameters.wikiaBucket + '/' + urlParameters.imagePath + '/revision/latest' + '/' + mode;
+        var url = [
+            'http://vignette.' + urlParameters.domain,
+            '/' + urlParameters.wikiaBucket,
+            '/' + urlParameters.imagePath,
+            '/revision/latest',
+            '/' + mode
+        ];
         if (mode === Vignette.mode.scaleToWidth) {
-            url += '/' + width;
+            url.push('/' + width);
         }
         else if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
-            url += '/width/' + width;
+            url.push('/width/' + width);
             if (mode === Vignette.mode.windowCropFixed) {
-                url += '/height/' + height;
+                url.push('/height/' + height);
             }
-            url += '/x-offset/' + urlParameters.xOffset1 + '/y-offset/' + urlParameters.yOffset1 + '/window-width/' + (urlParameters.xOffset2 - urlParameters.xOffset1) + '/window-height/' + (urlParameters.yOffset2 - urlParameters.yOffset1);
+            url.push('/x-offset/' + urlParameters.xOffset1);
+            url.push('/y-offset/' + urlParameters.yOffset1);
+            url.push('/window-width/' + (urlParameters.xOffset2 - urlParameters.xOffset1));
+            url.push('/window-height/' + (urlParameters.yOffset2 - urlParameters.yOffset1));
         }
         else {
-            url += '/width/' + width + '/height/' + height;
+            url.push('/width/' + width);
+            url.push('/height/' + height);
         }
-        url += '?cb=' + urlParameters.cacheBuster;
+        url.push('?cb=' + urlParameters.cacheBuster);
         if (this.hasWebPSupport) {
-            url += '&format=webp';
+            url.push('&format=webp');
         }
         if (urlParameters.pathPrefix) {
-            url += '&path-prefix=' + urlParameters.pathPrefix;
+            url.push('&path-prefix=' + urlParameters.pathPrefix);
         }
-        return url;
+        return url.join('');
     };
     Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
     Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
     Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
-    Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb([\d]+)\/(\w+)\/(\w+)\/(?:thumb\/)?(.*)$/;
+    Vignette.getDomainRegExt = /(wikia-dev.com|wikia.nocookie.net)/;
+    Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
     Vignette.mode = {
         fixedAspectRatio: 'fixed-aspect-ratio',
         fixedAspectRatioDown: 'fixed-aspect-ratio-down',
