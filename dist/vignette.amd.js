@@ -101,7 +101,7 @@ define(["require", "exports"], function (require, exports) {
          * @return {ImageUrlParameters}
          */
         Vignette.getParametersFromLegacyUrl = function (url) {
-            var segments = url.split('/'), prefix = [], bucket = [], result = {}, nextSegment;
+            var segments = url.split('/'), result = {};
             // Remove protocol
             segments.splice(0, 2);
             result.domain = this.getBaseDomain(segments.shift());

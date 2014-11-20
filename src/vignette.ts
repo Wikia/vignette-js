@@ -153,10 +153,7 @@ class Vignette {
 	 */
 	private static getParametersFromLegacyUrl(url: string): ImageUrlParameters {
 		var segments = url.split('/'),
-			prefix: string[] = [],
-			bucket: string[] = [],
-			result: any = {},
-			nextSegment: string;
+			result: any = {};
 
 		// Remove protocol
 		segments.splice(0, 2);
