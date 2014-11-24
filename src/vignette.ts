@@ -77,7 +77,7 @@ class Vignette {
 		mode: string,
 		width: number,
 		height: number,
-		config: any
+		config?: any
 		): string {
 		var urlParameters: ImageUrlParameters,
 			sizing: Sizing = {
