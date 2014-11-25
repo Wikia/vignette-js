@@ -262,13 +262,17 @@ class Vignette {
 				 url.push('/height/' + sizing.height);
 			}
 
-			url.push('/x-offset/' + sizing.xOffset1);
-			url.push('/y-offset/' + sizing.yOffset1);
-			url.push('/window-width/' + (sizing.xOffset2 - sizing.xOffset1));
-			url.push('/window-height/' + (sizing.yOffset2 - sizing.yOffset1));
+			url.push(
+				'/x-offset/' + sizing.xOffset1,
+				'/y-offset/' + sizing.yOffset1,
+				'/window-width/' + (sizing.xOffset2 - sizing.xOffset1),
+				'/window-height/' + (sizing.yOffset2 - sizing.yOffset1)
+			);
 		} else {
-			url.push('/width/' + sizing.width);
-			url.push('/height/' + sizing.height);
+			url.push(
+				'/width/' + sizing.width,
+				'/height/' + sizing.height
+			);
 		}
 
 		url.push('?cb=' + urlParameters.cacheBuster);
