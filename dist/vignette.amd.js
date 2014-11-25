@@ -16,15 +16,31 @@ define(["require", "exports"], function (require, exports) {
          * @param {String} mode The thumbnailer mode, one from Vignette.mode
          * @param {Number} width The width of the thumbnail to fetch
          * @param {Number} height The height of the thumbnail to fetch
+         * @param {Object|null} config Optional parameters used for special thumbnail modes
          *
          * @return {String}
          */
-        Vignette.getThumbURL = function (url, mode, width, height) {
-            var urlParameters;
+        Vignette.getThumbURL = function (url, mode, width, height, config) {
+            var urlParameters, sizing = {
+                mode: mode,
+                width: width,
+                height: height,
+            };
             // for now we handle only legacy urls as input
             if (this.isLegacyUrl(url)) {
                 urlParameters = this.getParametersFromLegacyUrl(url);
-                url = this.createThumbnailUrl(urlParameters, mode, width, height);
+                if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
+                    if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
+                        sizing['xOffset1'] = parseInt(config.xOffset1, 10);
+                        sizing['yOffset1'] = parseInt(config.yOffset1, 10);
+                        sizing['xOffset2'] = parseInt(config.xOffset2, 10);
+                        sizing['yOffset2'] = parseInt(config.yOffset2, 10);
+                    }
+                    else {
+                        throw new Error('Thumbnailer mode `' + mode + '` requires x and y offsets');
+                    }
+                }
+                url = this.createThumbnailUrl(urlParameters, sizing);
             }
             return url;
         };
@@ -66,8 +82,6 @@ define(["require", "exports"], function (require, exports) {
         };
         /**
          * Removes the thumbnail options part from a thumbnail URL
-         *
-         * @private
          *
          * @param {String} url The URL of a thumbnail
          *
@@ -152,17 +166,32 @@ define(["require", "exports"], function (require, exports) {
          *
          * @return {String}
          */
-        Vignette.createThumbnailUrl = function (urlParameters, mode, width, height) {
+        Vignette.createThumbnailUrl = function (urlParameters, sizing) {
             var url = [
                 'http://vignette.' + urlParameters.domain,
                 '/' + urlParameters.wikiaBucket,
                 '/' + urlParameters.imagePath,
                 '/revision/latest',
-                '/' + mode,
-                '/width/' + width,
-                '/height/' + height,
-                '?cb=' + urlParameters.cacheBuster
+                '/' + sizing.mode
             ];
+            if (sizing.mode === Vignette.mode.scaleToWidth) {
+                url.push('/' + sizing.width);
+            }
+            else if (sizing.mode === Vignette.mode.windowCrop || sizing.mode === Vignette.mode.windowCropFixed) {
+                url.push('/width/' + sizing.width);
+                if (sizing.mode === Vignette.mode.windowCropFixed) {
+                    url.push('/height/' + sizing.height);
+                }
+                url.push('/x-offset/' + sizing.xOffset1);
+                url.push('/y-offset/' + sizing.yOffset1);
+                url.push('/window-width/' + (sizing.xOffset2 - sizing.xOffset1));
+                url.push('/window-height/' + (sizing.yOffset2 - sizing.yOffset1));
+            }
+            else {
+                url.push('/width/' + sizing.width);
+                url.push('/height/' + sizing.height);
+            }
+            url.push('?cb=' + urlParameters.cacheBuster);
             if (this.hasWebPSupport) {
                 url.push('&format=webp');
             }
@@ -179,10 +208,13 @@ define(["require", "exports"], function (require, exports) {
         Vignette.mode = {
             fixedAspectRatio: 'fixed-aspect-ratio',
             fixedAspectRatioDown: 'fixed-aspect-ratio-down',
+            scaleToWidth: 'scale-to-width',
             thumbnail: 'thumbnail',
             thumbnailDown: 'thumbnail-down',
             topCrop: 'top-crop',
             topCropDown: 'top-crop-down',
+            windowCrop: 'window-crop',
+            windowCropFixed: 'window-crop-fixed',
             zoomCrop: 'zoom-crop',
             zoomCropDown: 'zoom-crop-down'
         };

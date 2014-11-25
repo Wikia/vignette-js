@@ -11,6 +11,16 @@ interface ImageUrlParameters {
 	imagePath: string;
 }
 
+interface Sizing {
+	height: number;
+	mode: string;
+	width: number;
+	xOffset1?: number;
+	xOffset2?: number;
+	yOffset1?: number;
+	yOffset2?: number;
+}
+
 class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/;
 	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
@@ -21,10 +31,13 @@ class Vignette {
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
 		fixedAspectRatioDown: 'fixed-aspect-ratio-down',
+		scaleToWidth: 'scale-to-width',
 		thumbnail: 'thumbnail',
 		thumbnailDown: 'thumbnail-down',
 		topCrop: 'top-crop',
 		topCropDown: 'top-crop-down',
+		windowCrop: 'window-crop',
+		windowCropFixed: 'window-crop-fixed',
 		zoomCrop: 'zoom-crop',
 		zoomCropDown: 'zoom-crop-down'
 	};
@@ -55,6 +68,7 @@ class Vignette {
 	 * @param {String} mode The thumbnailer mode, one from Vignette.mode
 	 * @param {Number} width The width of the thumbnail to fetch
 	 * @param {Number} height The height of the thumbnail to fetch
+	 * @param {Object|null} config Optional parameters used for special thumbnail modes
 	 *
 	 * @return {String}
 	 */
@@ -62,14 +76,32 @@ class Vignette {
 		url: string,
 		mode: string,
 		width: number,
-		height: number
+		height: number,
+		config?: any
 		): string {
-		var urlParameters: ImageUrlParameters;
+		var urlParameters: ImageUrlParameters,
+			sizing: Sizing = {
+				mode: mode,
+				width: width,
+				height: height,
+			};
 
 		// for now we handle only legacy urls as input
 		if (this.isLegacyUrl(url)) {
 			urlParameters = this.getParametersFromLegacyUrl(url);
-			url = this.createThumbnailUrl(urlParameters, mode, width, height);
+
+			if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
+				if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
+					sizing['xOffset1'] = parseInt(config.xOffset1, 10);
+					sizing['yOffset1'] = parseInt(config.yOffset1, 10);
+					sizing['xOffset2'] = parseInt(config.xOffset2, 10);
+					sizing['yOffset2'] = parseInt(config.yOffset2, 10);
+				} else {
+					throw new Error('Thumbnailer mode `' + mode + '` requires x and y offsets');
+				}
+			}
+
+			url = this.createThumbnailUrl(urlParameters, sizing);
 		}
 
 		return url;
@@ -211,20 +243,39 @@ class Vignette {
 	 */
 	private static createThumbnailUrl(
 		urlParameters: ImageUrlParameters,
-		mode: string,
-		width: number,
-		height: number
+		sizing: Sizing
 		): string {
 		var url	= [
 			'http://vignette.' + urlParameters.domain,
 			'/' + urlParameters.wikiaBucket,
 			'/' + urlParameters.imagePath,
 			'/revision/latest',
-			'/' + mode,
-			'/width/' + width,
-			'/height/' + height,
-			'?cb=' + urlParameters.cacheBuster
+			'/' + sizing.mode
 		];
+
+		if (sizing.mode === Vignette.mode.scaleToWidth) {
+			url.push('/' + sizing.width);
+		} else if (sizing.mode === Vignette.mode.windowCrop || sizing.mode === Vignette.mode.windowCropFixed) {
+			url.push('/width/' + sizing.width);
+
+			if (sizing.mode === Vignette.mode.windowCropFixed) {
+				 url.push('/height/' + sizing.height);
+			}
+
+			url.push(
+				'/x-offset/' + sizing.xOffset1,
+				'/y-offset/' + sizing.yOffset1,
+				'/window-width/' + (sizing.xOffset2 - sizing.xOffset1),
+				'/window-height/' + (sizing.yOffset2 - sizing.yOffset1)
+			);
+		} else {
+			url.push(
+				'/width/' + sizing.width,
+				'/height/' + sizing.height
+			);
+		}
+
+		url.push('?cb=' + urlParameters.cacheBuster);
 
 		if (this.hasWebPSupport) {
 			url.push('&format=webp');
