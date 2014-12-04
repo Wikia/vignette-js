@@ -82,7 +82,8 @@ QUnit.test('Vignette creates thumbnail mode from existing Vignette URL', functio
 			'/thumbnail-down/width/100/height/100?cb=20091115204314'
 		},
 		{
-			url: 'http://vignette2.wikia.nocookie.net/scrubs/images/c/cf/8x1_Janitor_fired.jpg/revision/latest?cb=20090108012745',
+			url: 'http://vignette2.wikia.nocookie.net/scrubs/images/c/cf/8x1_Janitor_fired.jpg/revision/latest' +
+			'/scale-to-width/400?cb=20090108012745',
 			mode: Vignette.mode.windowCrop,
 			width: 100,
 			height: 100,
