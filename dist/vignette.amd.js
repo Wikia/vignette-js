@@ -172,45 +172,65 @@ define(["require", "exports"], function (require, exports) {
         Vignette.createThumbnailUrl = function (urlParameters, sizing) {
             var url = [
                 'http://vignette.' + urlParameters.domain,
-                '/' + urlParameters.wikiaBucket,
-                '/' + urlParameters.imagePath,
-                '/revision/latest',
-                this.getModeParameters(sizing),
-                '?cb=' + urlParameters.cacheBuster
+                urlParameters.wikiaBucket,
+                urlParameters.imagePath,
+                'revision/latest',
+                this.getModeParameters(sizing)
+            ].join('/'), query = [
+                'cb=' + urlParameters.cacheBuster
             ];
             if (this.hasWebPSupport) {
-                url.push('&format=webp');
+                query.push('format=webp');
             }
             if (urlParameters.pathPrefix) {
-                url.push('&path-prefix=' + urlParameters.pathPrefix);
+                query.push('path-prefix=' + urlParameters.pathPrefix);
             }
-            return url.join('');
+            return url + '?' + query.join('&');
         };
+        /**
+         * Adds thumbnail mode parameters to a Vignette URL
+         *
+         * @private
+         *
+         * @param {String} url
+         * @param {Sizing} sizing
+         *
+         * @returns {String}
+         */
         Vignette.addThumbnailMode = function (url, sizing) {
             var currentUrl = url.substring(0, (url.indexOf('revision/latest') + 15)), queryIndex = url.indexOf('?'), queryString = '';
             if (queryIndex > -1) {
                 queryString = url.substring(queryIndex);
             }
-            return currentUrl + this.getModeParameters(sizing) + queryString;
+            return currentUrl + '/' + this.getModeParameters(sizing) + queryString;
         };
+        /**
+         * Gets thumbnail mode parameters as an appendable string
+         *
+         * @private
+         *
+         * @param {Sizing} sizing
+         *
+         * @returns {String}
+         */
         Vignette.getModeParameters = function (sizing) {
             var modeParameters = [
-                '/' + sizing.mode
+                sizing.mode
             ];
             if (sizing.mode === Vignette.mode.scaleToWidth) {
-                modeParameters.push('/' + sizing.width);
+                modeParameters.push(String(sizing.width));
             }
             else if (sizing.mode === Vignette.mode.windowCrop || sizing.mode === Vignette.mode.windowCropFixed) {
-                modeParameters.push('/width/' + sizing.width);
+                modeParameters.push('width/' + sizing.width);
                 if (sizing.mode === Vignette.mode.windowCropFixed) {
-                    modeParameters.push('/height/' + sizing.height);
+                    modeParameters.push('height/' + sizing.height);
                 }
-                modeParameters.push('/x-offset/' + sizing.xOffset1, '/y-offset/' + sizing.yOffset1, '/window-width/' + (sizing.xOffset2 - sizing.xOffset1), '/window-height/' + (sizing.yOffset2 - sizing.yOffset1));
+                modeParameters.push('x-offset/' + sizing.xOffset1, 'y-offset/' + sizing.yOffset1, 'window-width/' + (sizing.xOffset2 - sizing.xOffset1), 'window-height/' + (sizing.yOffset2 - sizing.yOffset1));
             }
             else {
-                modeParameters.push('/width/' + sizing.width, '/height/' + sizing.height);
+                modeParameters.push('width/' + sizing.width, 'height/' + sizing.height);
             }
-            return modeParameters.join('');
+            return modeParameters.join('/');
         };
         Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
         Vignette.thumbBasePathRegExp = /(.*\/revision\/\w+).*/;
