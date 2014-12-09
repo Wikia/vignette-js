@@ -1,6 +1,6 @@
 {
   "name": "vignette",
-  "version": "1.0.4",
+  "version": "1.0.3",
   "description": "Client-side interface for Vignette thumbnailer",
   "repository": {
     "type": "git",
