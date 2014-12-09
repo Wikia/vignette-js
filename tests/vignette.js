@@ -102,6 +102,42 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 	});
 });
 
+QUnit.test('Vignette creates thumbnail mode from existing Vignette URL', function () {
+	var testCases = [
+		{
+			url: 'http://vignette3.wikia.nocookie.net/scrubs/images/4/46/S8-HQ-Elliot-4.jpg/revision/latest?cb=20091115204314',
+			mode: Vignette.mode.thumbnailDown,
+			width: 100,
+			height: 100,
+			expectedOutput: 'http://vignette3.wikia.nocookie.net/scrubs/images/4/46/S8-HQ-Elliot-4.jpg/revision/latest' +
+			'/thumbnail-down/width/100/height/100?cb=20091115204314'
+		},
+		{
+			url: 'http://vignette2.wikia.nocookie.net/scrubs/images/c/cf/8x1_Janitor_fired.jpg/revision/latest' +
+			'/scale-to-width/400?cb=20090108012745',
+			mode: Vignette.mode.windowCrop,
+			width: 100,
+			height: 100,
+			config: {
+				xOffset1: 10,
+				yOffset1: 10,
+				xOffset2: 90,
+				yOffset2: 90,
+			},
+			expectedOutput: 'http://vignette2.wikia.nocookie.net/scrubs/images/c/cf/8x1_Janitor_fired.jpg/revision/latest' +
+			'/window-crop/width/100/x-offset/10/y-offset/10/window-width/80/window-height/80?cb=20090108012745'
+		}
+	];
+
+	testCases.forEach(function (testCase) {
+		Vignette.hasWebPSupport = false;
+		equal(
+			Vignette.getThumbURL(testCase.url, testCase.mode, testCase.width, testCase.height, testCase.config),
+			testCase.expectedOutput
+		);
+	});
+});
+
 QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 	var testCases = [
 		{
