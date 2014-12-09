@@ -11,8 +11,8 @@ interface ImageUrlParameters {
 	imagePath: string;
 }
 
-interface Sizing {
-	height: number;
+interface ThumbnailOptions {
+	height?: number;
 	mode: string;
 	width: number;
 	xOffset1?: number;
@@ -23,7 +23,6 @@ interface Sizing {
 
 class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette\d?\.wikia/;
-	private static thumbBasePathRegExp: RegExp = /(.*\/revision\/\w+).*/;
 	private static legacyThumbPathRegExp: RegExp = /\/\w+\/thumb\//;
 	private static getDomainRegExt: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
@@ -45,12 +44,12 @@ class Vignette {
 	static hasWebPSupport = (function () {
 		// Image is not defined in node.js
 		if (typeof Image === 'undefined') {
-			return false
+			return false;
 		}
 		// @see http://stackoverflow.com/a/5573422
 		var webP = new Image();
 		webP.src = 'data:image/webp;' +
-		'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+			'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
 		webP.onload = webP.onerror = () => {
 			Vignette.hasWebPSupport = (webP.height === 2);
 		};
@@ -65,52 +64,70 @@ class Vignette {
 	 * @public
 	 *
 	 * @param {String} url The URL to the full size image or a thumbnail
-	 * @param {String} mode The thumbnailer mode, one from Vignette.mode
-	 * @param {Number} width The width of the thumbnail to fetch
-	 * @param {Number} height The height of the thumbnail to fetch
-	 * @param {Object|null} config Optional parameters used for special thumbnail modes
+	 * @param {Object} options Parameters used for sizing the thumbnail and specifying mode
+	 * @param {String} options.mode The thumbnailer mode, one from Vignette.mode
+	 * @param {Number} options.width The width of the thumbnail to fetch
+	 * @param {Number} options.height The height of the thumbnail to fetch
+	 * @param {Number} options.xOffset1 Optional x-offset for some modes
+	 * @param {Number} options.xOffset2 Optional x-offset for some modes
+	 * @param {Number} options.yOffset1 Optional y-offset for some modes
+	 * @param {Number} options.yOffset2 Optional y-offset for some modes
 	 *
 	 * @return {String}
 	 */
 	static getThumbURL(
 		url: string,
-		mode: string,
-		width: number,
-		height: number,
-		config?: any
+		options: ThumbnailOptions
 		): string {
-		var urlParameters: ImageUrlParameters,
-			sizing: Sizing = {
-				mode: mode,
-				width: width,
-				height: height
-			};
+		var urlParameters: ImageUrlParameters;
 
-		if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
-			if (config &&
-				config.hasOwnProperty('xOffset1') &&
-				config.hasOwnProperty('yOffset1') &&
-				config.hasOwnProperty('xOffset2') &&
-				config.hasOwnProperty('yOffset2')
-			) {
-				sizing['xOffset1'] = parseInt(config.xOffset1, 10);
-				sizing['yOffset1'] = parseInt(config.yOffset1, 10);
-				sizing['xOffset2'] = parseInt(config.xOffset2, 10);
-				sizing['yOffset2'] = parseInt(config.yOffset2, 10);
-			} else {
-				throw new Error('Thumbnailer mode `' + mode + '` requires x and y offsets');
-			}
-		}
+		this.verifyThumbnailOptions(options);
 
 		if (this.isLegacyUrl(url)) {
 			urlParameters = this.getParametersFromLegacyUrl(url);
-			url = this.createThumbnailUrl(urlParameters, sizing);
+			url = this.createThumbnailUrl(urlParameters, options);
 		} else if (this.isThumbnailerUrl(url)) {
 			// Accept Vignette URL in order to convert thumbnail to a different mode
-			url = this.addThumbnailMode(url, sizing);
+			url = this.addThumbnailMode(url, options);
 		}
 
 		return url;
+	}
+
+	/**
+	 * Verifies required and mode-specific thumbnail options
+	 *
+	 * @private
+	 *
+	 * @param {options} options
+	 *
+	 * @return {void}
+	 */
+	private static verifyThumbnailOptions(options: ThumbnailOptions): void {
+		if (!options.hasOwnProperty('mode')) {
+			throw new Error('Required parameter `mode` not specified for method getThumbUrl');
+		}
+
+		if (!options.hasOwnProperty('width')) {
+			throw new Error('Required parameter `width` not specified for method getThumbUrl');
+		}
+
+		if (!options.hasOwnProperty('height') &&
+			options.mode !== Vignette.mode.scaleToWidth &&
+			options.mode !== Vignette.mode.windowCrop
+		) {
+			throw new Error('Thumbnailer mode `' + options.mode + '` requires height');
+		}
+
+		if (options.mode === Vignette.mode.windowCrop || options.mode === Vignette.mode.windowCropFixed) {
+			if (!options.hasOwnProperty('xOffset1') ||
+				!options.hasOwnProperty('yOffset1') ||
+				!options.hasOwnProperty('xOffset2') ||
+				!options.hasOwnProperty('yOffset2')
+			) {
+				throw new Error('Thumbnailer mode `' + options.mode + '` requires x and y offsets');
+			}
+		}
 	}
 
 	/**
@@ -150,20 +167,6 @@ class Vignette {
 	 */
 	private static isLegacyUrl(url: string): boolean {
 		return url && this.legacyPathRegExp.test(url);
-	}
-
-	/**
-	 * Removes the thumbnail options part from a thumbnail URL
-	 *
-	 * @param {String} url The URL of a thumbnail
-	 *
-	 * @return {String} The URL without the thumbnail options
-	 */
-	public static clearThumbOptions(url: string): string {
-		if (this.isThumbnailerUrl(url)) {
-			return url.replace(this.thumbBasePathRegExp, '$1');
-		}
-		return this.clearLegacyThumbSegments(url.split('/')).join('/');
 	}
 
 	/**
@@ -212,7 +215,7 @@ class Vignette {
 	 *
 	 * @param {String} url
 	 *
-	 * @return {ImageUrlParameters}
+	 * @return {object}
 	 */
 	private static getParametersFromLegacyUrl(url: string): ImageUrlParameters {
 		var segments = url.split('/'),
@@ -240,23 +243,21 @@ class Vignette {
 	 *
 	 * @private
 	 *
-	 * @param {ImageUrlParameters} urlParameters
-	 * @param {String} mode
-	 * @param {Number} width
-	 * @param {Number} height
+	 * @param {object} urlParameters
+	 * @param {object} options
 	 *
 	 * @return {String}
 	 */
 	private static createThumbnailUrl(
 		urlParameters: ImageUrlParameters,
-		sizing: Sizing
+		options: ThumbnailOptions
 		): string {
 		var url	= [
 				'http://vignette.' + urlParameters.domain,
 				urlParameters.wikiaBucket,
 				urlParameters.imagePath,
 				'revision/latest',
-				this.getModeParameters(sizing)
+				this.getModeParameters(options)
 			].join('/'),
 			query = [
 				'cb=' + urlParameters.cacheBuster
@@ -279,11 +280,11 @@ class Vignette {
 	 * @private
 	 *
 	 * @param {String} url
-	 * @param {Sizing} sizing
+	 * @param {object} options
 	 *
 	 * @returns {String}
 	 */
-	private static addThumbnailMode(url: string, sizing: Sizing): string {
+	private static addThumbnailMode(url: string, options: ThumbnailOptions): string {
 		var currentUrl = url.substring(0, (url.indexOf('revision/latest') + 15)),
 			queryIndex = url.indexOf('?'),
 			queryString = '';
@@ -292,7 +293,7 @@ class Vignette {
 			queryString = url.substring(queryIndex);
 		}
 
-		return currentUrl + '/' + this.getModeParameters(sizing) + queryString;
+		return currentUrl + '/' + this.getModeParameters(options) + queryString;
 	}
 
 	/**
@@ -300,34 +301,34 @@ class Vignette {
 	 *
 	 * @private
 	 *
-	 * @param {Sizing} sizing
+	 * @param {object} options
 	 *
 	 * @returns {String}
 	 */
-	private static getModeParameters(sizing: Sizing): string {
+	private static getModeParameters(options: ThumbnailOptions): string {
 		var modeParameters = [
-			sizing.mode
+			options.mode
 		];
 
-		if (sizing.mode === Vignette.mode.scaleToWidth) {
-			modeParameters.push(String(sizing.width));
-		} else if (sizing.mode === Vignette.mode.windowCrop || sizing.mode === Vignette.mode.windowCropFixed) {
-			modeParameters.push('width/' + sizing.width);
+		if (options.mode === Vignette.mode.scaleToWidth) {
+			modeParameters.push(String(options.width));
+		} else if (options.mode === Vignette.mode.windowCrop || options.mode === Vignette.mode.windowCropFixed) {
+			modeParameters.push('width/' + options.width);
 
-			if (sizing.mode === Vignette.mode.windowCropFixed) {
-				 modeParameters.push('height/' + sizing.height);
+			if (options.mode === Vignette.mode.windowCropFixed) {
+				 modeParameters.push('height/' + options.height);
 			}
 
 			modeParameters.push(
-				'x-offset/' + sizing.xOffset1,
-				'y-offset/' + sizing.yOffset1,
-				'window-width/' + (sizing.xOffset2 - sizing.xOffset1),
-				'window-height/' + (sizing.yOffset2 - sizing.yOffset1)
+				'x-offset/' + options.xOffset1,
+				'y-offset/' + options.yOffset1,
+				'window-width/' + (options.xOffset2 - options.xOffset1),
+				'window-height/' + (options.yOffset2 - options.yOffset1)
 			);
 		} else {
 			modeParameters.push(
-				'width/' + sizing.width,
-				'height/' + sizing.height
+				'width/' + options.width,
+				'height/' + options.height
 			);
 		}
 
