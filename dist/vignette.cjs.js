@@ -23,10 +23,10 @@ var Vignette = (function () {
         var urlParameters, sizing = {
             mode: mode,
             width: width,
-            height: height,
+            height: height
         };
         if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
-            if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
+            if (config && config.hasOwnProperty('xOffset1') && config.hasOwnProperty('yOffset1') && config.hasOwnProperty('xOffset2') && config.hasOwnProperty('yOffset2')) {
                 sizing['xOffset1'] = parseInt(config.xOffset1, 10);
                 sizing['yOffset1'] = parseInt(config.yOffset1, 10);
                 sizing['xOffset2'] = parseInt(config.xOffset2, 10);
