@@ -24,13 +24,13 @@ define(["require", "exports"], function (require, exports) {
             var urlParameters, sizing = {
                 mode: mode,
                 width: width,
-                height: height,
+                height: height
             };
             // for now we handle only legacy urls as input
             if (this.isLegacyUrl(url)) {
                 urlParameters = this.getParametersFromLegacyUrl(url);
                 if (mode === Vignette.mode.windowCrop || mode === Vignette.mode.windowCropFixed) {
-                    if (config && config.xOffset1 && config.yOffset1 && config.xOffset2 && config.yOffset2) {
+                    if (config && config.hasOwnProperty('xOffset1') && config.hasOwnProperty('yOffset1') && config.hasOwnProperty('xOffset2') && config.hasOwnProperty('yOffset2')) {
                         sizing['xOffset1'] = parseInt(config.xOffset1, 10);
                         sizing['yOffset1'] = parseInt(config.yOffset1, 10);
                         sizing['xOffset2'] = parseInt(config.xOffset2, 10);
@@ -182,14 +182,10 @@ define(["require", "exports"], function (require, exports) {
                 if (sizing.mode === Vignette.mode.windowCropFixed) {
                     url.push('/height/' + sizing.height);
                 }
-                url.push('/x-offset/' + sizing.xOffset1);
-                url.push('/y-offset/' + sizing.yOffset1);
-                url.push('/window-width/' + (sizing.xOffset2 - sizing.xOffset1));
-                url.push('/window-height/' + (sizing.yOffset2 - sizing.yOffset1));
+                url.push('/x-offset/' + sizing.xOffset1, '/y-offset/' + sizing.yOffset1, '/window-width/' + (sizing.xOffset2 - sizing.xOffset1), '/window-height/' + (sizing.yOffset2 - sizing.yOffset1));
             }
             else {
-                url.push('/width/' + sizing.width);
-                url.push('/height/' + sizing.height);
+                url.push('/width/' + sizing.width, '/height/' + sizing.height);
             }
             url.push('?cb=' + urlParameters.cacheBuster);
             if (this.hasWebPSupport) {
