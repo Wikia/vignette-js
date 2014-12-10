@@ -67,11 +67,11 @@ class Vignette {
 	 * @param {Object} options Parameters used for sizing the thumbnail and specifying mode
 	 * @param {String} options.mode The thumbnailer mode, one from Vignette.mode
 	 * @param {Number} options.width The width of the thumbnail to fetch
-	 * @param {Number} options.height The height of the thumbnail to fetch
-	 * @param {Number} options.xOffset1 Optional x-offset for some modes
-	 * @param {Number} options.xOffset2 Optional x-offset for some modes
-	 * @param {Number} options.yOffset1 Optional y-offset for some modes
-	 * @param {Number} options.yOffset2 Optional y-offset for some modes
+	 * @param {Number} options.height (Optional) The height of the thumbnail to fetch
+	 * @param {Number} options.xOffset1 (Optional) x-offset for some modes
+	 * @param {Number} options.xOffset2 (Optional) x-offset for some modes
+	 * @param {Number} options.yOffset1 (Optional) y-offset for some modes
+	 * @param {Number} options.yOffset2 (Optional) y-offset for some modes
 	 *
 	 * @return {String}
 	 */
@@ -99,7 +99,7 @@ class Vignette {
 	 *
 	 * @private
 	 *
-	 * @param {options} options
+	 * @param {object} options
 	 *
 	 * @return {void}
 	 */
