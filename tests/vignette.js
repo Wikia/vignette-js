@@ -96,6 +96,13 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/window-crop-fixed/width/100/height/100/x-offset/0/y-offset/0/window-width/90/window-height/90' +
 				'?cb=20100311231730'
+		},
+		{
+			url: 'http://static.igor.wikia-dev.com/__cb20130614225714/thelastofus/images/9/99/Robert.png',
+			hasWebPSupport: false,
+			// With no options passed, should return a Vignette URL to a full-size image
+			expectedOutput: 'http://vignette.wikia-dev.com/thelastofus/images/9/99/Robert.png/revision/latest' +
+				'?cb=20130614225714'
 		}
 	];
 
@@ -134,7 +141,14 @@ QUnit.test('Vignette creates thumbnail mode from existing Vignette URL', functio
 			},
 			expectedOutput: 'http://vignette2.wikia.nocookie.net/scrubs/images/c/cf/8x1_Janitor_fired.jpg/revision/latest' +
 				'/window-crop/width/100/x-offset/10/y-offset/10/window-width/80/window-height/80?cb=20090108012745'
-		}
+		},
+		{
+			url: 'http://vignette3.wikia.nocookie.net/scrubs/images/4/46/S8-HQ-Elliot-4.jpg/revision/latest' +
+				'/fixed-aspect-ratio/width/90/height/90?cb=20091115204314',
+			// With no options passed, should return a Vignette URL to a full-size image
+			expectedOutput: 'http://vignette3.wikia.nocookie.net/scrubs/images/4/46/S8-HQ-Elliot-4.jpg/revision/latest' +
+				'?cb=20091115204314'
+		},
 	];
 
 	testCases.forEach(function (testCase) {
@@ -257,7 +271,7 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				wikiaBucket: 'thelastofus/images',
 				imagePath: '9/99/Robert.png'
 			},
-			sizing: {
+			options: {
 				mode: Vignette.mode.topCrop,
 				width: 500,
 				height: 100
@@ -273,7 +287,7 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				wikiaBucket: 'muppet/images',
 				imagePath: 'd/d9/Jim-and-jim.jpg'
 			},
-			sizing: {
+			options: {
 				mode: Vignette.mode.fixedAspectRatio,
 				width: 300,
 				height: 150
@@ -289,7 +303,7 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				wikiaBucket: 'common/avatars',
 				imagePath: '7/7c/1271044.png'
 			},
-			sizing: {
+			options: {
 				mode: Vignette.mode.zoomCrop,
 				width: 100,
 				height: 100
@@ -305,7 +319,7 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 		equal(
 			Vignette.createThumbnailUrl(
 				testCase.urlParameters,
-				testCase.sizing
+				testCase.options
 			),
 			testCase.expectedOutput
 		);
