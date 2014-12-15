@@ -15,24 +15,26 @@ var Vignette = (function () {
      * @param {Object} options Parameters used for sizing the thumbnail and specifying mode
      * @param {String} options.mode The thumbnailer mode, one from Vignette.mode
      * @param {Number} options.width The width of the thumbnail to fetch
-     * @param {Number} options.height The height of the thumbnail to fetch
-     * @param {Number} options.xOffset1 Optional x-offset for some modes
-     * @param {Number} options.xOffset2 Optional x-offset for some modes
-     * @param {Number} options.yOffset1 Optional y-offset for some modes
-     * @param {Number} options.yOffset2 Optional y-offset for some modes
+     * @param {Number} options.height (Optional) The height of the thumbnail to fetch
+     * @param {Number} options.xOffset1 (Optional) x-offset for some modes
+     * @param {Number} options.xOffset2 (Optional) x-offset for some modes
+     * @param {Number} options.yOffset1 (Optional) y-offset for some modes
+     * @param {Number} options.yOffset2 (Optional) y-offset for some modes
      *
      * @return {String}
      */
     Vignette.getThumbURL = function (url, options) {
         var urlParameters;
-        this.verifyThumbnailOptions(options);
+        if (options) {
+            this.verifyThumbnailOptions(options);
+        }
         if (this.isLegacyUrl(url)) {
             urlParameters = this.getParametersFromLegacyUrl(url);
             url = this.createThumbnailUrl(urlParameters, options);
         }
         else if (this.isThumbnailerUrl(url)) {
             // Accept Vignette URL in order to convert thumbnail to a different mode
-            url = this.addThumbnailMode(url, options);
+            url = this.updateThumbnailUrl(url, options);
         }
         return url;
     };
@@ -41,23 +43,23 @@ var Vignette = (function () {
      *
      * @private
      *
-     * @param {options} options
+     * @param {object} options
+     * @throws {Error} when a required parameter is missing
      *
      * @return {void}
      */
     Vignette.verifyThumbnailOptions = function (options) {
-        if (!options.hasOwnProperty('mode')) {
-            throw new Error('Required parameter `mode` not specified for method getThumbUrl');
-        }
-        if (!options.hasOwnProperty('width')) {
-            throw new Error('Required parameter `width` not specified for method getThumbUrl');
-        }
-        if (!options.hasOwnProperty('height') && options.mode !== Vignette.mode.scaleToWidth && options.mode !== Vignette.mode.windowCrop) {
-            throw new Error('Thumbnailer mode `' + options.mode + '` requires height');
-        }
-        if (options.mode === Vignette.mode.windowCrop || options.mode === Vignette.mode.windowCropFixed) {
-            if (!options.hasOwnProperty('xOffset1') || !options.hasOwnProperty('yOffset1') || !options.hasOwnProperty('xOffset2') || !options.hasOwnProperty('yOffset2')) {
-                throw new Error('Thumbnailer mode `' + options.mode + '` requires x and y offsets');
+        if (options.hasOwnProperty('mode')) {
+            if (!options.hasOwnProperty('width')) {
+                throw new Error('Required parameter `width` not specified for method getThumbUrl');
+            }
+            if (!options.hasOwnProperty('height') && options.mode !== Vignette.mode.scaleToWidth && options.mode !== Vignette.mode.windowCrop) {
+                throw new Error('Thumbnailer mode `' + options.mode + '` requires height');
+            }
+            if (options.mode === Vignette.mode.windowCrop || options.mode === Vignette.mode.windowCropFixed) {
+                if (!options.hasOwnProperty('xOffset1') || !options.hasOwnProperty('yOffset1') || !options.hasOwnProperty('xOffset2') || !options.hasOwnProperty('yOffset2')) {
+                    throw new Error('Thumbnailer mode `' + options.mode + '` requires x and y offsets');
+                }
             }
         }
     };
@@ -71,19 +73,8 @@ var Vignette = (function () {
      * @return {Boolean}
      */
     Vignette.isThumbnailerUrl = function (url) {
-        return url && this.imagePathRegExp.test(url);
-    };
-    /**
-     * Checks if url points to legacy thumbnailer
-     *
-     * @private
-     *
-     * @param {String} url
-     *
-     * @return {Boolean}
-     */
-    Vignette.isLegacyThumbnailerUrl = function (url) {
-        return url && this.legacyThumbPathRegExp.test(url);
+        if (url === void 0) { url = ''; }
+        return this.imagePathRegExp.test(url);
     };
     /**
      * Checks if url points to legacy image URL
@@ -95,7 +86,8 @@ var Vignette = (function () {
      * @return {Boolean}
      */
     Vignette.isLegacyUrl = function (url) {
-        return url && this.legacyPathRegExp.test(url);
+        if (url === void 0) { url = ''; }
+        return this.legacyPathRegExp.test(url);
     };
     /**
      * Gets base domain from url's domain
@@ -105,7 +97,8 @@ var Vignette = (function () {
      * @returns {String}
      */
     Vignette.getBaseDomain = function (fullLegacyDomain) {
-        return fullLegacyDomain.match(this.getDomainRegExt)[1];
+        if (fullLegacyDomain === void 0) { fullLegacyDomain = ''; }
+        return fullLegacyDomain.match(this.domainRegExp)[1];
     };
     /**
      * Clear thumb segments from legacy url segments
@@ -174,20 +167,23 @@ var Vignette = (function () {
             urlParameters.wikiaBucket,
             urlParameters.imagePath,
             'revision/latest',
-            this.getModeParameters(options)
-        ].join('/'), query = [
+        ], query = [
             'cb=' + urlParameters.cacheBuster
         ];
+        if (options && options.hasOwnProperty('mode')) {
+            url.push(this.getModeParameters(options));
+        }
         if (this.hasWebPSupport) {
             query.push('format=webp');
         }
         if (urlParameters.pathPrefix) {
             query.push('path-prefix=' + urlParameters.pathPrefix);
         }
-        return url + '?' + query.join('&');
+        return url.join('/') + '?' + query.join('&');
     };
     /**
-     * Adds thumbnail mode parameters to a Vignette URL
+     * Updates a Vignette URL with the given options. May be used to strip all options
+     * from a URL and return the full-size image, if no options are passed in.
      *
      * @private
      *
@@ -196,12 +192,15 @@ var Vignette = (function () {
      *
      * @returns {String}
      */
-    Vignette.addThumbnailMode = function (url, options) {
-        var currentUrl = url.substring(0, (url.indexOf('revision/latest') + 15)), queryIndex = url.indexOf('?'), queryString = '';
+    Vignette.updateThumbnailUrl = function (currentUrl, options) {
+        var newUrl = currentUrl.substring(0, (currentUrl.indexOf('revision/latest') + 15)), queryIndex = currentUrl.indexOf('?'), queryString = '';
         if (queryIndex > -1) {
-            queryString = url.substring(queryIndex);
+            queryString = currentUrl.substring(queryIndex);
         }
-        return currentUrl + '/' + this.getModeParameters(options) + queryString;
+        if (options && options.hasOwnProperty('mode')) {
+            newUrl += '/' + this.getModeParameters(options);
+        }
+        return newUrl + queryString;
     };
     /**
      * Gets thumbnail mode parameters as an appendable string
@@ -232,8 +231,7 @@ var Vignette = (function () {
         return modeParameters.join('/');
     };
     Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
-    Vignette.legacyThumbPathRegExp = /\/\w+\/thumb\//;
-    Vignette.getDomainRegExt = /(wikia-dev.com|wikia.nocookie.net)/;
+    Vignette.domainRegExp = /(wikia-dev.com|wikia.nocookie.net)/;
     Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
     Vignette.mode = {
         fixedAspectRatio: 'fixed-aspect-ratio',

@@ -101,6 +101,7 @@ class Vignette {
 	 * @private
 	 *
 	 * @param {object} options
+	 * @throws {Error} when a required parameter is missing
 	 *
 	 * @return {void}
 	 */
@@ -138,8 +139,8 @@ class Vignette {
 	 *
 	 * @return {Boolean}
 	 */
-	private static isThumbnailerUrl(url: string): boolean {
-		return url && this.imagePathRegExp.test(url);
+	private static isThumbnailerUrl(url = ''): boolean {
+		return this.imagePathRegExp.test(url);
 	}
 
 	/**
@@ -151,8 +152,8 @@ class Vignette {
 	 *
 	 * @return {Boolean}
 	 */
-	private static isLegacyUrl(url: string): boolean {
-		return url && this.legacyPathRegExp.test(url);
+	private static isLegacyUrl(url = ''): boolean {
+		return this.legacyPathRegExp.test(url);
 	}
 
 	/**
@@ -162,7 +163,7 @@ class Vignette {
 	 *
 	 * @returns {String}
 	 */
-	private static getBaseDomain(fullLegacyDomain: string): string {
+	private static getBaseDomain(fullLegacyDomain = ''): string {
 		return fullLegacyDomain.match(this.domainRegExp)[1];
 	}
 
