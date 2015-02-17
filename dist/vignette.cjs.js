@@ -230,7 +230,7 @@ var Vignette = (function () {
         }
         return modeParameters.join('/');
     };
-    Vignette.imagePathRegExp = /\/\/vignette\d?\.wikia/;
+    Vignette.imagePathRegExp = /\/\/vignette(\d|-poz)?\.wikia/;
     Vignette.domainRegExp = /(wikia-dev.com|wikia.nocookie.net)/;
     Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
     Vignette.mode = {

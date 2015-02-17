@@ -167,6 +167,10 @@ QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 			expectedOutput: true
 		},
 		{
+			url: 'http://vignette-poz.wikia-dev.com/thelastofus/9/99/Robert.png/revision/latest',
+			expectedOutput: true
+		},
+		{
 			url: 'http://vignette.wikia.nocookie.net/muppet/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/top-crop/width/500/height/200?cb=20130614225714',
 			expectedOutput: true
