@@ -12,7 +12,6 @@ interface ImageUrlParameters {
 }
 
 interface ThumbnailOptions {
-	frame?: number;
 	height?: number;
 	mode?: string;
 	width?: number;
@@ -72,7 +71,6 @@ class Vignette {
 	 * @param {Number} options.xOffset2 (Optional) x-offset for some modes
 	 * @param {Number} options.yOffset1 (Optional) y-offset for some modes
 	 * @param {Number} options.yOffset2 (Optional) y-offset for some modes
-	 * @param {Number} options.frame (Optional) Frame number for an animated GIF
 	 *
 	 * @return {String}
 	 */
@@ -327,10 +325,6 @@ class Vignette {
 				'width/' + options.width,
 				'height/' + options.height
 			);
-		}
-
-		if (options.frame) {
-			modeParameters.push('frame/' + ~~options.frame);
 		}
 
 		return modeParameters.join('/');
