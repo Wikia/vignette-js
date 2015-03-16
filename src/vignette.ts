@@ -12,6 +12,7 @@ interface ImageUrlParameters {
 }
 
 interface ThumbnailOptions {
+	frame?: number;
 	height?: number;
 	mode?: string;
 	width?: number;
@@ -71,6 +72,7 @@ class Vignette {
 	 * @param {Number} options.xOffset2 (Optional) x-offset for some modes
 	 * @param {Number} options.yOffset1 (Optional) y-offset for some modes
 	 * @param {Number} options.yOffset2 (Optional) y-offset for some modes
+	 * @param {Number} options.frame (Optional) Frame number for an animated GIF
 	 *
 	 * @return {String}
 	 */
@@ -249,8 +251,14 @@ class Vignette {
 				'cb=' + urlParameters.cacheBuster
 			];
 
-		if (options && options.hasOwnProperty('mode')) {
-			url.push(this.getModeParameters(options));
+		if (options) {
+			if (options.hasOwnProperty('mode')) {
+				url.push(this.getModeParameters(options));
+			}
+
+			if (options.frame) {
+				query.push('frame=' + ~~options.frame);
+			}
 		}
 
 		if (this.hasWebPSupport) {
@@ -286,6 +294,10 @@ class Vignette {
 
 		if (options && options.hasOwnProperty('mode')) {
 			newUrl += '/' + this.getModeParameters(options);
+		}
+
+		if (options && options.frame && !/[\?|&]frame=/.test(queryString)) {
+			queryString += (queryString.length ? '&' : '?') + 'frame=' + ~~options.frame;
 		}
 
 		return newUrl + queryString;
