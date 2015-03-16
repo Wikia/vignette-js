@@ -21,6 +21,7 @@ define(["require", "exports"], function (require, exports) {
          * @param {Number} options.xOffset2 (Optional) x-offset for some modes
          * @param {Number} options.yOffset1 (Optional) y-offset for some modes
          * @param {Number} options.yOffset2 (Optional) y-offset for some modes
+         * @param {Number} options.frame (Optional) Frame number for an animated GIF
          *
          * @return {String}
          */
@@ -228,6 +229,9 @@ define(["require", "exports"], function (require, exports) {
             }
             else {
                 modeParameters.push('width/' + options.width, 'height/' + options.height);
+            }
+            if (options.frame) {
+                modeParameters.push('frame/' + ~~options.frame);
             }
             return modeParameters.join('/');
         };
