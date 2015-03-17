@@ -315,6 +315,23 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/common/avatars/7/7c/1271044.png/revision/latest' +
 				'/zoom-crop/width/100/height/100?cb=0'
+		},
+		{
+			urlParameters: {
+				domain: 'wikia.nocookie.net',
+				cacheBuster: '20100311231982',
+				wikiaBucket: 'common/avatars',
+				imagePath: '7/7c/1271044.png'
+			},
+			options: {
+				mode: Vignette.mode.zoomCrop,
+				width: 100,
+				height: 100,
+				frame: '2'
+			},
+			hasWebPSupport: false,
+			expectedOutput: 'http://vignette.wikia.nocookie.net/common/avatars/7/7c/1271044.png/revision/latest' +
+				'/zoom-crop/width/100/height/100?cb=20100311231982&frame=2'
 		}
 	];
 
