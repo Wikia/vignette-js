@@ -256,7 +256,7 @@ class Vignette {
 				url.push(this.getModeParameters(options));
 			}
 
-			if (options.frame) {
+			if (options.hasOwnProperty('frame')) {
 				query.push('frame=' + ~~options.frame);
 			}
 		}
@@ -296,7 +296,7 @@ class Vignette {
 			newUrl += '/' + this.getModeParameters(options);
 		}
 
-		if (options && options.frame && !/[\?|&]frame=/.test(queryString)) {
+		if (options && options.hasOwnProperty('frame') && !/[\?|&]frame=/.test(queryString)) {
 			queryString += (queryString.length ? '&' : '?') + 'frame=' + ~~options.frame;
 		}
 
