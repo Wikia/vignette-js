@@ -21,6 +21,7 @@ define(["require", "exports"], function (require, exports) {
          * @param {Number} options.xOffset2 (Optional) x-offset for some modes
          * @param {Number} options.yOffset1 (Optional) y-offset for some modes
          * @param {Number} options.yOffset2 (Optional) y-offset for some modes
+         * @param {Number} options.frame (Optional) Frame number for an animated GIF
          *
          * @return {String}
          */
@@ -171,8 +172,13 @@ define(["require", "exports"], function (require, exports) {
             ], query = [
                 'cb=' + urlParameters.cacheBuster
             ];
-            if (options && options.hasOwnProperty('mode')) {
-                url.push(this.getModeParameters(options));
+            if (options) {
+                if (options.hasOwnProperty('mode')) {
+                    url.push(this.getModeParameters(options));
+                }
+                if (options.hasOwnProperty('frame')) {
+                    query.push('frame=' + ~~options.frame);
+                }
             }
             if (this.hasWebPSupport) {
                 query.push('format=webp');
@@ -200,6 +206,9 @@ define(["require", "exports"], function (require, exports) {
             }
             if (options && options.hasOwnProperty('mode')) {
                 newUrl += '/' + this.getModeParameters(options);
+            }
+            if (options && options.hasOwnProperty('frame') && !/[\?|&]frame=/.test(queryString)) {
+                queryString += (queryString.length ? '&' : '?') + 'frame=' + ~~options.frame;
             }
             return newUrl + queryString;
         };
