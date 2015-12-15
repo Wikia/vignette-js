@@ -430,6 +430,16 @@ QUnit.test('Thumbnailer creates thumb URL for new UUID based URLs', function () 
 			},
 			expectedOutput: 'https://vignette-poz.wikia-dev.com/c8a832d4-7be6-4748-be94-ed09876547b5' +
 			'/zoom-crop/width/150/height/260'
+		},
+		{
+			url: 'https://vignette-poz.wikia-dev.com/C8A832D4-7BE6-4748-BE94-ED09876547B5',
+			options: {
+				mode: Vignette.mode.zoomCrop,
+				width: 150,
+				height: 260
+			},
+			expectedOutput: 'https://vignette-poz.wikia-dev.com/C8A832D4-7BE6-4748-BE94-ED09876547B5' +
+			'/zoom-crop/width/150/height/260'
 		}
 	];
 	testCases.forEach(function (testCase) {

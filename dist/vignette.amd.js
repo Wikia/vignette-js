@@ -243,7 +243,7 @@ define(["require", "exports"], function (require, exports) {
          *
          * @private
          *
-         * @param {String} url
+         * @param {String} currentUrl
          * @param {object} options
          *
          * @returns {String}
@@ -292,7 +292,7 @@ define(["require", "exports"], function (require, exports) {
         Vignette.imagePathRegExp = /\/\/vignette(\d|-poz)?\.wikia/;
         Vignette.domainRegExp = /(wikia-dev.com|wikia.nocookie.net)/;
         Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
-        Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+        Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
         Vignette.mode = {
             fixedAspectRatio: 'fixed-aspect-ratio',
             fixedAspectRatioDown: 'fixed-aspect-ratio-down',
