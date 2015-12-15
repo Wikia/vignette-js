@@ -26,7 +26,7 @@ class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette(\d|-poz)?\.wikia/;
 	private static domainRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
-	private static onlyUUIDRegExp: RegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+	private static onlyUUIDRegExp: RegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
@@ -159,7 +159,7 @@ class Vignette {
 	 */
 	private static isUUIDOnlyUrl(url = ''): boolean {
 		return this.onlyUUIDRegExp.test(url);
-	};
+	}
 
 	/**
 	 * Checks if url points to legacy image URL
@@ -303,6 +303,12 @@ class Vignette {
 		options: ThumbnailOptions
 	): string {
 		var query = [];
+
+		//If last char is '/' then remove it
+		if(baseUrl.charAt(baseUrl.length - 1) === '/') {
+			baseUrl = baseUrl.substring(0, baseUrl.length - 1);
+		}
+
 		var url = [baseUrl];
 
 		if (options) {
