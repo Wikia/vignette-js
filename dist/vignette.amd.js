@@ -1,8 +1,8 @@
-/**
- * Helper module to generate the URL to a thumbnail of specific size from JS
- */
-'use strict';
 define(["require", "exports"], function (require, exports) {
+    /**
+     * Helper module to generate the URL to a thumbnail of specific size from JS
+     */
+    'use strict';
     var Vignette = (function () {
         function Vignette() {
         }
@@ -34,6 +34,9 @@ define(["require", "exports"], function (require, exports) {
                 urlParameters = this.getParametersFromLegacyUrl(url);
                 url = this.createThumbnailUrl(urlParameters, options);
             }
+            else if (this.isUUIDOnlyUrl(url)) {
+                url = this.createUUIDBasedThumbnailUrl(url, options);
+            }
             else if (this.isThumbnailerUrl(url)) {
                 // Accept Vignette URL in order to convert thumbnail to a different mode
                 url = this.updateThumbnailUrl(url, options);
@@ -55,11 +58,16 @@ define(["require", "exports"], function (require, exports) {
                 if (!options.hasOwnProperty('width')) {
                     throw new Error('Required parameter `width` not specified for method getThumbUrl');
                 }
-                if (!options.hasOwnProperty('height') && options.mode !== Vignette.mode.scaleToWidth && options.mode !== Vignette.mode.windowCrop) {
+                if (!options.hasOwnProperty('height') &&
+                    options.mode !== Vignette.mode.scaleToWidth &&
+                    options.mode !== Vignette.mode.windowCrop) {
                     throw new Error('Thumbnailer mode `' + options.mode + '` requires height');
                 }
                 if (options.mode === Vignette.mode.windowCrop || options.mode === Vignette.mode.windowCropFixed) {
-                    if (!options.hasOwnProperty('xOffset1') || !options.hasOwnProperty('yOffset1') || !options.hasOwnProperty('xOffset2') || !options.hasOwnProperty('yOffset2')) {
+                    if (!options.hasOwnProperty('xOffset1') ||
+                        !options.hasOwnProperty('yOffset1') ||
+                        !options.hasOwnProperty('xOffset2') ||
+                        !options.hasOwnProperty('yOffset2')) {
                         throw new Error('Thumbnailer mode `' + options.mode + '` requires x and y offsets');
                     }
                 }
@@ -77,6 +85,19 @@ define(["require", "exports"], function (require, exports) {
         Vignette.isThumbnailerUrl = function (url) {
             if (url === void 0) { url = ''; }
             return this.imagePathRegExp.test(url);
+        };
+        /**
+         * Checks if url points to new Vignette
+         *
+         * @private
+         *
+         * @param {String} url
+         *
+         * @return {Boolean}
+         */
+        Vignette.isUUIDOnlyUrl = function (url) {
+            if (url === void 0) { url = ''; }
+            return this.onlyUUIDRegExp.test(url);
         };
         /**
          * Checks if url points to legacy image URL
@@ -189,12 +210,40 @@ define(["require", "exports"], function (require, exports) {
             return url.join('/') + '?' + query.join('&');
         };
         /**
+         * Constructs complete thumbnailer url for UUID based links
+         *
+         * @private
+         *
+         * @param {string} baseUrl
+         * @param {object} options
+         *
+         * @return {String}
+         */
+        Vignette.createUUIDBasedThumbnailUrl = function (baseUrl, options) {
+            var query = [];
+            //If last char is '/' then remove it
+            if (baseUrl.charAt(baseUrl.length - 1) === '/') {
+                baseUrl = baseUrl.substring(0, baseUrl.length - 1);
+            }
+            var url = [baseUrl];
+            if (options) {
+                if (options.hasOwnProperty('mode')) {
+                    url.push(this.getModeParameters(options));
+                }
+                if (options.hasOwnProperty('frame')) {
+                    query.push('frame=' + ~~options.frame);
+                }
+            }
+            return url.join('/') + (query.length > 0 ? '?' : '') + query.join('&');
+        };
+        ;
+        /**
          * Updates a Vignette URL with the given options. May be used to strip all options
          * from a URL and return the full-size image, if no options are passed in.
          *
          * @private
          *
-         * @param {String} url
+         * @param {String} currentUrl
          * @param {object} options
          *
          * @returns {String}
@@ -243,6 +292,7 @@ define(["require", "exports"], function (require, exports) {
         Vignette.imagePathRegExp = /\/\/vignette(\d|-poz)?\.wikia/;
         Vignette.domainRegExp = /(wikia-dev.com|wikia.nocookie.net)/;
         Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
+        Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
         Vignette.mode = {
             fixedAspectRatio: 'fixed-aspect-ratio',
             fixedAspectRatioDown: 'fixed-aspect-ratio-down',
@@ -263,7 +313,8 @@ define(["require", "exports"], function (require, exports) {
             }
             // @see http://stackoverflow.com/a/5573422
             var webP = new Image();
-            webP.src = 'data:image/webp;' + 'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+            webP.src = 'data:image/webp;' +
+                'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
             webP.onload = webP.onerror = function () {
                 Vignette.hasWebPSupport = (webP.height === 2);
             };

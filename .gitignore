@@ -29,3 +29,8 @@ node_modules
 
 # Editors
 .idea
+
+# Webstorm compiled files
+src/vignette.js
+
+src/vignette.js.map
