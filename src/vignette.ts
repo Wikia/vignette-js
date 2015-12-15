@@ -26,6 +26,7 @@ class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/vignette(\d|-poz)?\.wikia/;
 	private static domainRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
+	private static onlyUUIDRegExp: RegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 	public static mode: any = {
 		fixedAspectRatio: 'fixed-aspect-ratio',
@@ -89,6 +90,8 @@ class Vignette {
 		if (this.isLegacyUrl(url)) {
 			urlParameters = this.getParametersFromLegacyUrl(url);
 			url = this.createThumbnailUrl(urlParameters, options);
+		} else if(this.isUUIDOnlyUrl(url)) {
+			url = this.createUUIDBasedThumbnailUrl(url, options);
 		} else if (this.isThumbnailerUrl(url)) {
 			// Accept Vignette URL in order to convert thumbnail to a different mode
 			url = this.updateThumbnailUrl(url, options);
@@ -144,6 +147,19 @@ class Vignette {
 	private static isThumbnailerUrl(url = ''): boolean {
 		return this.imagePathRegExp.test(url);
 	}
+
+	/**
+	 * Checks if url points to new Vignette
+	 *
+	 * @private
+	 *
+	 * @param {String} url
+	 *
+	 * @return {Boolean}
+	 */
+	private static isUUIDOnlyUrl(url = ''): boolean {
+		return this.onlyUUIDRegExp.test(url);
+	};
 
 	/**
 	 * Checks if url points to legacy image URL
@@ -271,6 +287,34 @@ class Vignette {
 
 		return url.join('/') + '?' + query.join('&');
 	}
+
+	/**
+	 * Constructs complete thumbnailer url for UUID based links
+	 *
+	 * @private
+	 *
+	 * @param {string} baseUrl
+	 * @param {object} options
+	 *
+	 * @return {String}
+	 */
+	private static createUUIDBasedThumbnailUrl(
+		baseUrl: string,
+		options: ThumbnailOptions
+	): string {
+		var query = [];
+		var url = [baseUrl];
+
+		if (options) {
+			if (options.hasOwnProperty('mode')) {
+				url.push(this.getModeParameters(options));
+			}
+			if (options.hasOwnProperty('frame')) {
+				query.push('frame=' + ~~options.frame);
+			}
+		}
+		return url.join('/') + (query.length > 0 ? '?' : '') + query.join('&');
+	};
 
 	/**
 	 * Updates a Vignette URL with the given options. May be used to strip all options
