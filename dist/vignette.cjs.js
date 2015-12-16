@@ -220,10 +220,8 @@ var Vignette = (function () {
      */
     Vignette.createUUIDBasedThumbnailUrl = function (baseUrl, options) {
         var query = [];
-        //If last char is '/' then remove it
-        if (baseUrl.charAt(baseUrl.length - 1) === '/') {
-            baseUrl = baseUrl.substring(0, baseUrl.length - 1);
-        }
+        // Remove everything after UUID
+        baseUrl = baseUrl.split('/').splice(0, 4).join('/');
         var url = [baseUrl];
         if (options) {
             if (options.hasOwnProperty('mode')) {
@@ -291,7 +289,7 @@ var Vignette = (function () {
     Vignette.imagePathRegExp = /\/\/vignette(\d|-poz)?\.wikia/;
     Vignette.domainRegExp = /(wikia-dev.com|wikia.nocookie.net)/;
     Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
-    Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(|\/)$/i;
+    Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(|\/)/i;
     Vignette.mode = {
         fixedAspectRatio: 'fixed-aspect-ratio',
         fixedAspectRatioDown: 'fixed-aspect-ratio-down',

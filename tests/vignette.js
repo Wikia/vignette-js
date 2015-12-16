@@ -473,14 +473,14 @@ QUnit.test('Thumbnailer recognizes vignette URLs vs static.wikia.nocookie.net/ U
 			'/zoom-crop/width/150/height/260'
 		},
 		{
-			url: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377/fixed-aspect-ratio/width/100/height/100',
+			url: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377/fixed-aspect-ratio/width/128/height/128',
 			options: {
 				mode: Vignette.mode.scaleToWidth,
-				width: 100,
-				height: 100
+				width: 256,
+				height: 512
 			},
 			expectedOutput: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377' +
-			'/fixed-aspect-ratio/width/100/height/100'
+			'/scale-to-width/width/256'
 		}
 	];
 	testCases.forEach(function (testCase) {
