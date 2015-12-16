@@ -449,3 +449,44 @@ QUnit.test('Thumbnailer creates thumb URL for new UUID based URLs', function () 
 		);
 	});
 });
+
+QUnit.test('Thumbnailer recognizes vignette URLs vs static.wikia.nocookie.net/ Urls with suffix', function () {
+	var testCases = [
+		{
+			url: 'https://vignette-poz.wikia-dev.com/c8a832d4-7be6-4748-be94-ed09876547b5/',
+			options: {
+				mode: Vignette.mode.topCrop,
+				width: 300,
+				height: 300
+			},
+			expectedOutput: 'https://vignette-poz.wikia-dev.com/c8a832d4-7be6-4748-be94-ed09876547b5' +
+			'/top-crop/width/300/height/300'
+		},
+		{
+			url: 'https://vignette-poz.wikia-dev.com/c8a832d4-7be6-4748-be94-ed09876547b5',
+			options: {
+				mode: Vignette.mode.zoomCrop,
+				width: 150,
+				height: 260
+			},
+			expectedOutput: 'https://vignette-poz.wikia-dev.com/c8a832d4-7be6-4748-be94-ed09876547b5' +
+			'/zoom-crop/width/150/height/260'
+		},
+		{
+			url: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377/fixed-aspect-ratio/width/100/height/100',
+			options: {
+				mode: Vignette.mode.scaleToWidth,
+				width: 100,
+				height: 100
+			},
+			expectedOutput: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377' +
+			'/fixed-aspect-ratio/width/100/height/100'
+		}
+	];
+	testCases.forEach(function (testCase) {
+		equal(
+			Vignette.getThumbURL(testCase.url, testCase.options),
+			testCase.expectedOutput
+		);
+	});
+});
