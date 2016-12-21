@@ -288,8 +288,8 @@ define(["require", "exports"], function (require, exports) {
             return modeParameters.join('/');
         };
         Vignette.imagePathRegExp = /\/\/vignette(\d|-poz)?\.wikia/;
-        Vignette.domainRegExp = /(wikia-dev.com|wikia.nocookie.net)/;
-        Vignette.legacyPathRegExp = /(wikia-dev.com|wikia.nocookie.net)\/__cb[\d]+\/.*$/;
+        Vignette.domainRegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)/;
+        Vignette.legacyPathRegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)\/__cb[\d]+\/.*$/;
         Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(|\/)/i;
         Vignette.mode = {
             fixedAspectRatio: 'fixed-aspect-ratio',
@@ -319,6 +319,6 @@ define(["require", "exports"], function (require, exports) {
             return false;
         })();
         return Vignette;
-    })();
+    }());
     return Vignette;
 });
