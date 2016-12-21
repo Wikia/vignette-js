@@ -14,6 +14,28 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
 		},
 		{
+			url: 'http://static.igor.wikia-dev.us/__cb20130614225714/thelastofus/images/9/99/Robert.png',
+			options: {
+				mode: Vignette.mode.topCrop,
+				width: 500,
+				height: 200
+			},
+			hasWebPSupport: true,
+			expectedOutput: 'http://vignette.wikia-dev.us/thelastofus/images/9/99/Robert.png/revision/latest' +
+				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
+		},
+		{
+			url: 'http://static.igor.wikia-dev.pl/__cb20130614225714/thelastofus/images/9/99/Robert.png',
+			options: {
+				mode: Vignette.mode.topCrop,
+				width: 500,
+				height: 200
+			},
+			hasWebPSupport: true,
+			expectedOutput: 'http://vignette.wikia-dev.pl/thelastofus/images/9/99/Robert.png/revision/latest' +
+				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
+		},
+		{
 			url: 'http://img2.wikia.nocookie.net/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
 			options: {
 				mode: Vignette.mode.fixedAspectRatio,
@@ -167,7 +189,23 @@ QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 			expectedOutput: true
 		},
 		{
+			url: 'http://vignette.wikia-dev.us/thelastofus/9/99/Robert.png',
+			expectedOutput: true
+		},
+		{
+			url: 'http://vignette.wikia-dev.pl/thelastofus/9/99/Robert.png',
+			expectedOutput: true
+		},
+		{
 			url: 'http://vignette-poz.wikia-dev.com/thelastofus/9/99/Robert.png/revision/latest',
+			expectedOutput: true
+		},
+		{
+			url: 'http://vignette-poz.wikia-dev.us/thelastofus/9/99/Robert.png/revision/latest',
+			expectedOutput: true
+		},
+		{
+			url: 'http://vignette-poz.wikia-dev.pl/thelastofus/9/99/Robert.png/revision/latest',
 			expectedOutput: true
 		},
 		{
@@ -181,6 +219,14 @@ QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 		},
 		{
 			url: 'http://static.igor.wikia-dev.com/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
+			expectedOutput: false
+		},
+		{
+			url: 'http://static.igor.wikia-dev.pl/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
+			expectedOutput: false
+		},
+		{
+			url: 'http://static.igor.wikia-dev.us/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
 			expectedOutput: false
 		},
 		{
@@ -480,7 +526,7 @@ QUnit.test('Thumbnailer recognizes vignette URLs vs static.wikia.nocookie.net/ U
 				height: 512
 			},
 			expectedOutput: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377' +
-			'/scale-to-width/width/256'
+			'/scale-to-width/256'
 		}
 	];
 	testCases.forEach(function (testCase) {
