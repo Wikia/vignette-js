@@ -11,7 +11,7 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 			},
 			hasWebPSupport: true,
 			expectedOutput: 'http://vignette.wikia-dev.com/thelastofus/images/9/99/Robert.png/revision/latest' +
-				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
+				'/for-sure-invalid'
 		},
 		{
 			url: 'http://static.igor.wikia-dev.us/__cb20130614225714/thelastofus/images/9/99/Robert.png',
