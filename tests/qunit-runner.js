@@ -27,7 +27,7 @@ testrunner.run({
 	if (err) {
 		console.error(err);
 		process.exit(1);
-	} else if(report.failed>0) {
+	} else if (report.failed > 0) {
 		process.exit(2);
 	} else {
 		console.log('Done');
