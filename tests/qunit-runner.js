@@ -25,8 +25,10 @@ testrunner.run({
     tests: __dirname + '/vignette.js'
 }, function (err, report) {
 	if (err) {
-		console.error(err)
+		console.error(err);
 		process.exit(1);
+	} else if (report.failed > 0) {
+		process.exit(2);
 	} else {
 		console.log('Done');
 	}
