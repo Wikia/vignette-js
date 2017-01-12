@@ -2,6 +2,7 @@
   "name": "vignette",
   "version": "2.1.1",
   "description": "Client-side interface for Vignette thumbnailer",
+  "main": "dist/vignette.cjs",
   "repository": {
     "type": "git",
     "url": "git://github.com/Wikia/vignette-js.git"
