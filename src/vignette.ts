@@ -42,22 +42,6 @@ class Vignette {
 		zoomCropDown: 'zoom-crop-down'
 	};
 
-	static hasWebPSupport = (function () {
-		// Image is not defined in node.js
-		if (typeof Image === 'undefined') {
-			return false;
-		}
-		// @see http://stackoverflow.com/a/5573422
-		var webP = new Image();
-		webP.src = 'data:image/webp;' +
-			'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
-		webP.onload = webP.onerror = () => {
-			Vignette.hasWebPSupport = (webP.height === 2);
-		};
-
-		return false;
-	})();
-
 	/**
 	 * Converts the URL of a full size image or of a thumbnail into one of a thumbnail of
 	 * the specified size and returns it
@@ -275,10 +259,6 @@ class Vignette {
 			if (options.hasOwnProperty('frame')) {
 				query.push('frame=' + ~~options.frame);
 			}
-		}
-
-		if (this.hasWebPSupport) {
-			query.push('format=webp');
 		}
 
 		if (urlParameters.pathPrefix) {
