@@ -9,9 +9,8 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				width: 500,
 				height: 200
 			},
-			hasWebPSupport: true,
 			expectedOutput: 'http://vignette.wikia-dev.com/thelastofus/images/9/99/Robert.png/revision/latest' +
-				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
+				'/top-crop/width/500/height/200?cb=20130614225714'
 		},
 		{
 			url: 'http://static.igor.wikia-dev.us/__cb20130614225714/thelastofus/images/9/99/Robert.png',
@@ -20,9 +19,8 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				width: 500,
 				height: 200
 			},
-			hasWebPSupport: true,
 			expectedOutput: 'http://vignette.wikia-dev.us/thelastofus/images/9/99/Robert.png/revision/latest' +
-				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
+				'/top-crop/width/500/height/200?cb=20130614225714'
 		},
 		{
 			url: 'http://static.igor.wikia-dev.pl/__cb20130614225714/thelastofus/images/9/99/Robert.png',
@@ -31,9 +29,8 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				width: 500,
 				height: 200
 			},
-			hasWebPSupport: true,
 			expectedOutput: 'http://vignette.wikia-dev.pl/thelastofus/images/9/99/Robert.png/revision/latest' +
-				'/top-crop/width/500/height/200?cb=20130614225714&format=webp'
+				'/top-crop/width/500/height/200?cb=20130614225714'
 		},
 		{
 			url: 'http://img2.wikia.nocookie.net/__cb20100311231730/muppet/images/d/d9/Jim-and-jim.jpg',
@@ -42,7 +39,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				width: 100,
 				height: 100
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/fixed-aspect-ratio/width/100/height/100?cb=20100311231730'
 		},
@@ -53,7 +49,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				width: 100,
 				height: 100
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/scale-to-width/100?cb=20100311231730'
 		},
@@ -68,7 +63,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				xOffset2: 90,
 				yOffset2: 90
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/window-crop/width/100/x-offset/10/y-offset/10/window-width/80/window-height/80?cb=20100311231730'
 		},
@@ -83,7 +77,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				xOffset2: 90,
 				yOffset2: 90
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/window-crop/width/100/x-offset/0/y-offset/0/window-width/90/window-height/90?cb=20100311231730'
 		},
@@ -98,7 +91,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				xOffset2: 90,
 				yOffset2: 90
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/window-crop-fixed/width/100/height/100/x-offset/10/y-offset/10/window-width/80/window-height/80' +
 				'?cb=20100311231730'
@@ -114,14 +106,12 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 				xOffset2: 90,
 				yOffset2: 90
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/window-crop-fixed/width/100/height/100/x-offset/0/y-offset/0/window-width/90/window-height/90' +
 				'?cb=20100311231730'
 		},
 		{
 			url: 'http://static.igor.wikia-dev.com/__cb20130614225714/thelastofus/images/9/99/Robert.png',
-			hasWebPSupport: false,
 			// With no options passed, should return a Vignette URL to a full-size image
 			expectedOutput: 'http://vignette.wikia-dev.com/thelastofus/images/9/99/Robert.png/revision/latest' +
 				'?cb=20130614225714'
@@ -129,7 +119,6 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 	];
 
 	testCases.forEach(function (testCase) {
-		Vignette.hasWebPSupport = testCase.hasWebPSupport;
 		equal(
 			Vignette.getThumbURL(testCase.url, testCase.options),
 			testCase.expectedOutput
@@ -174,7 +163,6 @@ QUnit.test('Vignette creates thumbnail mode from existing Vignette URL', functio
 	];
 
 	testCases.forEach(function (testCase) {
-		Vignette.hasWebPSupport = false;
 		equal(
 			Vignette.getThumbURL(testCase.url, testCase.options),
 			testCase.expectedOutput
@@ -326,9 +314,8 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				width: 500,
 				height: 100
 			},
-			hasWebPSupport: true,
 			expectedOutput: 'http://vignette.wikia-dev.com/thelastofus/images/9/99/Robert.png/revision/latest' +
-				'/top-crop/width/500/height/100?cb=20130614225714&format=webp'
+				'/top-crop/width/500/height/100?cb=20130614225714'
 		},
 		{
 			urlParameters: {
@@ -342,7 +329,6 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				width: 300,
 				height: 150
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest' +
 				'/fixed-aspect-ratio/width/300/height/150?cb=20100311231730'
 		},
@@ -358,7 +344,6 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				width: 100,
 				height: 100
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/common/avatars/7/7c/1271044.png/revision/latest' +
 				'/zoom-crop/width/100/height/100?cb=0'
 		},
@@ -375,14 +360,12 @@ QUnit.test('Thumbnailer creates thumb URL from list of parameters', function () 
 				height: 100,
 				frame: '2'
 			},
-			hasWebPSupport: false,
 			expectedOutput: 'http://vignette.wikia.nocookie.net/common/avatars/7/7c/1271044.png/revision/latest' +
 				'/zoom-crop/width/100/height/100?cb=20100311231982&frame=2'
 		}
 	];
 
 	testCases.forEach(function (testCase) {
-		Vignette.hasWebPSupport = testCase.hasWebPSupport;
 		equal(
 			Vignette.createThumbnailUrl(
 				testCase.urlParameters,

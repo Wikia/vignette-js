@@ -200,9 +200,6 @@ var Vignette = (function () {
                 query.push('frame=' + ~~options.frame);
             }
         }
-        if (this.hasWebPSupport) {
-            query.push('format=webp');
-        }
         if (urlParameters.pathPrefix) {
             query.push('path-prefix=' + urlParameters.pathPrefix);
         }
@@ -303,19 +300,5 @@ var Vignette = (function () {
         zoomCrop: 'zoom-crop',
         zoomCropDown: 'zoom-crop-down'
     };
-    Vignette.hasWebPSupport = (function () {
-        // Image is not defined in node.js
-        if (typeof Image === 'undefined') {
-            return false;
-        }
-        // @see http://stackoverflow.com/a/5573422
-        var webP = new Image();
-        webP.src = 'data:image/webp;' +
-            'base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
-        webP.onload = webP.onerror = function () {
-            Vignette.hasWebPSupport = (webP.height === 2);
-        };
-        return false;
-    })();
     return Vignette;
 }());
