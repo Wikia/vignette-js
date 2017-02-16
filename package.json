@@ -1,6 +1,6 @@
 {
   "name": "vignette",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Client-side interface for Vignette thumbnailer",
   "main": "dist/vignette.cjs",
   "repository": {
