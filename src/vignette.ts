@@ -242,7 +242,7 @@ class Vignette {
 		options: ThumbnailOptions
 		): string {
 		var url	= [
-				'http://vignette.' + urlParameters.domain,
+				'https://vignette.' + urlParameters.domain,
 				urlParameters.wikiaBucket,
 				urlParameters.imagePath,
 				'revision/latest',

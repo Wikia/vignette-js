@@ -186,7 +186,7 @@ define(["require", "exports"], function (require, exports) {
          */
         Vignette.createThumbnailUrl = function (urlParameters, options) {
             var url = [
-                'http://vignette.' + urlParameters.domain,
+                'https://vignette.' + urlParameters.domain,
                 urlParameters.wikiaBucket,
                 urlParameters.imagePath,
                 'revision/latest',
