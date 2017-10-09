@@ -8,7 +8,7 @@
     "url": "git://github.com/Wikia/vignette-js.git"
   },
   "scripts": {
-    "test": "node tests/qunit-runner.js"
+    "test": "gulp && node tests/qunit-runner.js"
   },
   "license": "MIT",
   "devDependencies": {
