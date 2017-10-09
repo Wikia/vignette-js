@@ -65,7 +65,7 @@ class Vignette {
 		url: string,
 		options: ThumbnailOptions
 		): string {
-		var urlParameters: ImageUrlParameters;
+		let urlParameters: ImageUrlParameters;
 
 		if (options) {
 			this.verifyThumbnailOptions(options);
@@ -207,8 +207,8 @@ class Vignette {
 	 * @return {object}
 	 */
 	private static getParametersFromLegacyUrl(url: string): ImageUrlParameters {
-		var segments = url.split('/'),
-			result: any = {};
+		let segments = url.split('/');
+		const result: any = {};
 
 		// Remove protocol
 		segments.splice(0, 2);
@@ -241,7 +241,7 @@ class Vignette {
 		urlParameters: ImageUrlParameters,
 		options: ThumbnailOptions
 		): string {
-		var url	= [
+		const url = [
 				'https://vignette.' + urlParameters.domain,
 				urlParameters.wikiaBucket,
 				urlParameters.imagePath,
@@ -282,12 +282,12 @@ class Vignette {
 		baseUrl: string,
 		options: ThumbnailOptions
 	): string {
-		var query = [];
+		const query = [];
 
 		// Remove everything after UUID
 		baseUrl = baseUrl.split('/').splice(0,4).join('/');
 
-		var url = [baseUrl];
+		const url = [baseUrl];
 
 		if (options) {
 			if (options.hasOwnProperty('mode')) {
@@ -312,10 +312,22 @@ class Vignette {
 	 * @returns {String}
 	 */
 	private static updateThumbnailUrl(currentUrl: string, options: ThumbnailOptions): string {
-		var newUrl = currentUrl.substring(0, (currentUrl.indexOf('revision/latest') + 15)),
-			queryIndex = currentUrl.indexOf('?'),
-			queryString = '';
+		const queryIndex = currentUrl.indexOf('?');
+		const revisionSuffixIndex = currentUrl.indexOf('revision/latest');
 
+		let lastBaseUrlCharIndex = currentUrl.length;
+		if (revisionSuffixIndex > -1) {
+			lastBaseUrlCharIndex = revisionSuffixIndex + 15;
+		} else if (queryIndex > -1) {
+			lastBaseUrlCharIndex = queryIndex;
+		}
+
+		let newUrl = currentUrl.substring(0, lastBaseUrlCharIndex);
+		if (revisionSuffixIndex === -1) {
+			newUrl += '/revision/latest';
+		}
+
+		let queryString = '';
 		if (queryIndex > -1) {
 			queryString = currentUrl.substring(queryIndex);
 		}
@@ -341,7 +353,7 @@ class Vignette {
 	 * @returns {String}
 	 */
 	private static getModeParameters(options: ThumbnailOptions): string {
-		var modeParameters = [
+		const modeParameters = [
 			options.mode
 		];
 

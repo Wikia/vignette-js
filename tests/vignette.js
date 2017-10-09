@@ -115,6 +115,14 @@ QUnit.test('Vignette creates thumbnail URL', function () {
 			// With no options passed, should return a Vignette URL to a full-size image
 			expectedOutput: 'https://vignette.wikia-dev.com/thelastofus/images/9/99/Robert.png/revision/latest' +
 				'?cb=20130614225714'
+		},
+		{
+			url: 'https://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg',
+			expectedOutput: 'https://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest'
+		},
+		{
+			url: 'https://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg?cb=123',
+			expectedOutput: 'https://vignette.wikia.nocookie.net/muppet/images/d/d9/Jim-and-jim.jpg/revision/latest?cb=123'
 		}
 	];
 

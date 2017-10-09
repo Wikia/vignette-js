@@ -160,7 +160,8 @@ define(["require", "exports"], function (require, exports) {
          * @return {object}
          */
         Vignette.getParametersFromLegacyUrl = function (url) {
-            var segments = url.split('/'), result = {};
+            var segments = url.split('/');
+            var result = {};
             // Remove protocol
             segments.splice(0, 2);
             result.domain = this.getBaseDomain(segments.shift());
@@ -244,7 +245,20 @@ define(["require", "exports"], function (require, exports) {
          * @returns {String}
          */
         Vignette.updateThumbnailUrl = function (currentUrl, options) {
-            var newUrl = currentUrl.substring(0, (currentUrl.indexOf('revision/latest') + 15)), queryIndex = currentUrl.indexOf('?'), queryString = '';
+            var queryIndex = currentUrl.indexOf('?');
+            var revisionSuffixIndex = currentUrl.indexOf('revision/latest');
+            var lastBaseUrlCharIndex = currentUrl.length;
+            if (revisionSuffixIndex > -1) {
+                lastBaseUrlCharIndex = revisionSuffixIndex + 15;
+            }
+            else if (queryIndex > -1) {
+                lastBaseUrlCharIndex = queryIndex;
+            }
+            var newUrl = currentUrl.substring(0, lastBaseUrlCharIndex);
+            if (revisionSuffixIndex === -1) {
+                newUrl += '/revision/latest';
+            }
+            var queryString = '';
             if (queryIndex > -1) {
                 queryString = currentUrl.substring(queryIndex);
             }
