@@ -308,6 +308,7 @@ define(["require", "exports"], function (require, exports) {
             scaleToWidth: 'scale-to-width',
             thumbnail: 'thumbnail',
             thumbnailDown: 'thumbnail-down',
+            smart: 'smart',
             topCrop: 'top-crop',
             topCropDown: 'top-crop-down',
             windowCrop: 'window-crop',

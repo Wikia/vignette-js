@@ -34,6 +34,7 @@ class Vignette {
 		scaleToWidth: 'scale-to-width',
 		thumbnail: 'thumbnail',
 		thumbnailDown: 'thumbnail-down',
+		smart: 'smart',
 		topCrop: 'top-crop',
 		topCropDown: 'top-crop-down',
 		windowCrop: 'window-crop',

@@ -168,6 +168,15 @@ QUnit.test('Vignette creates thumbnail mode from existing Vignette URL', functio
 			expectedOutput: 'https://vignette3.wikia.nocookie.net/scrubs/images/4/46/S8-HQ-Elliot-4.jpg/revision/latest' +
 				'?cb=20091115204314'
 		},
+		{
+			url: 'https://vignette.wikia.nocookie.net/muppet/images/8/82/Muppet.JPG/revision/latest?cb=20080223040055',
+			options: {
+				mode: Vignette.mode.smart,
+				width: 250,
+				height: 150
+			},
+			expectedOutput: 'https://vignette.wikia.nocookie.net/muppet/images/8/82/Muppet.JPG/revision/latest/smart/width/250/height/150?cb=20080223040055'
+		}
 	];
 
 	testCases.forEach(function (testCase) {
@@ -477,7 +486,16 @@ QUnit.test('Thumbnailer creates thumb URL for new UUID based URLs', function () 
 			},
 			expectedOutput: 'https://vignette-poz.wikia-dev.com/C8A832D4-7BE6-4748-BE94-ED09876547B5' +
 			'/zoom-crop/width/150/height/260'
-		}
+		},
+		{
+			url: 'http://vignette.wikia-dev.pl/f4291758-ffd8-479f-be5f-b19cf5cd6c2d',
+			options: {
+				mode: Vignette.mode.smart,
+				width: 300,
+				height: 300
+			},
+			expectedOutput: 'http://vignette.wikia-dev.pl/f4291758-ffd8-479f-be5f-b19cf5cd6c2d/smart/width/300/height/300'
+		},
 	];
 	testCases.forEach(function (testCase) {
 		equal(
