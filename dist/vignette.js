@@ -297,7 +297,7 @@ var Vignette = (function () {
         }
         return modeParameters.join('/');
     };
-    Vignette.imagePathRegExp = /\/\/vignette(\d|-poz)?\.wikia/;
+    Vignette.imagePathRegExp = /\/\/(vignette|static)(\d|-poz)?\.(wikia|fandom)/;
     Vignette.domainRegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)/;
     Vignette.legacyPathRegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)\/__cb[\d]+\/.*$/;
     Vignette.onlyUUIDRegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(|\/)/i;
