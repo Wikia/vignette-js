@@ -23,7 +23,7 @@ interface ThumbnailOptions {
 }
 
 class Vignette {
-	private static imagePathRegExp: RegExp = /\/\/vignette(\d|-poz)?\.wikia/;
+	private static imagePathRegExp: RegExp = /\/\/(vignette|static)(\d|-poz)?\.(wikia|fandom)/;
 	private static domainRegExp: RegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)\/__cb[\d]+\/.*$/;
 	private static onlyUUIDRegExp: RegExp = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(|\/)/i;

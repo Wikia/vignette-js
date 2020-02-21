@@ -242,11 +242,23 @@ QUnit.test('Thumbnailer verifies thumbnailer URL', function () {
 		{
 			url: 'http://img3.wikia.nocookie.net/__cb0/common/avatars/thumb/7/7c/1271044.png/100px-1271044.png.jpg',
 			expectedOutput: false
+		},
+		{
+			url: 'https://vignette.fandom-dev.pl/thelastofus/9/99/Robert.png/revision/latest',
+			expectedOutput: true
+		},
+		{
+			url: 'https://static.fandom-dev.pl/thelastofus/9/99/Robert.png/revision/latest',
+			expectedOutput: true
+		},
+		{
+			url: 'https://static.wikia-dev.pl/thelastofus/9/99/Robert.png/revision/latest',
+			expectedOutput: true
 		}
 	];
 
 	testCases.forEach(function (testCase) {
-		equal(Vignette.isThumbnailerUrl(testCase.url), testCase.expectedOutput);
+		equal(Vignette.isThumbnailerUrl(testCase.url), testCase.expectedOutput, testCase.url);
 	});
 });
 
@@ -536,7 +548,27 @@ QUnit.test('Thumbnailer recognizes vignette URLs vs static.wikia.nocookie.net/ U
 			},
 			expectedOutput: 'https://static.wikia.nocookie.net/6f2431a7-19de-494c-91d0-391536b44377' +
 			'/scale-to-width/256'
-		}
+		},
+		{
+			url: 'https://static.fandom-dev.us/c8a832d4-7be6-4748-be94-ed09876547b5',
+			options: {
+				mode: Vignette.mode.zoomCrop,
+				width: 150,
+				height: 260
+			},
+			expectedOutput: 'https://static.fandom-dev.us/c8a832d4-7be6-4748-be94-ed09876547b5' +
+				'/zoom-crop/width/150/height/260'
+		},
+		{
+			url: 'https://static.fandom-dev.pl/c8a832d4-7be6-4748-be94-ed09876547b5',
+			options: {
+				mode: Vignette.mode.zoomCrop,
+				width: 150,
+				height: 260
+			},
+			expectedOutput: 'https://static.fandom-dev.pl/c8a832d4-7be6-4748-be94-ed09876547b5' +
+				'/zoom-crop/width/150/height/260'
+		},
 	];
 	testCases.forEach(function (testCase) {
 		equal(
