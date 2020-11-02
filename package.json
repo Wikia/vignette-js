@@ -16,7 +16,6 @@
     "gulp": "3.x.x",
     "gulp-rename": "1.2.x",
     "gulp-typescript": "2.x.x",
-    "gulp-wrap": "0.5.x",
     "merge2": "^1.4.1",
     "qunit": "0.x.x"
   }
