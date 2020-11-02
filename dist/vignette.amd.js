@@ -318,5 +318,6 @@ define(["require", "exports"], function (require, exports) {
         };
         return Vignette;
     }());
-    return Vignette;
+    exports.__esModule = true;
+    exports["default"] = Vignette;
 });

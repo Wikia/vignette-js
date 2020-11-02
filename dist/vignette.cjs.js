@@ -317,4 +317,5 @@ var Vignette = (function () {
     };
     return Vignette;
 }());
-module.exports = Vignette;
+exports.__esModule = true;
+exports["default"] = Vignette;

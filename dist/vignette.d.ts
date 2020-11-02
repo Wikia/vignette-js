@@ -1,11 +1,11 @@
-interface ImageUrlParameters {
+export interface ImageUrlParameters {
     domain: string;
     cacheBuster: string;
     wikiaBucket: string;
     pathPrefix: string;
     imagePath: string;
 }
-interface ThumbnailOptions {
+export interface ThumbnailOptions {
     frame?: number;
     height?: number;
     mode?: string;
@@ -15,7 +15,7 @@ interface ThumbnailOptions {
     yOffset1?: number;
     yOffset2?: number;
 }
-declare class Vignette {
+export default class Vignette {
     private static imagePathRegExp;
     private static domainRegExp;
     private static legacyPathRegExp;
