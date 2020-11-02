@@ -2,13 +2,20 @@ var gulp = require('gulp'),
 	rename = require('gulp-rename'),
 	ts = require('gulp-typescript'),
 	wrap = require('gulp-wrap'),
+	merge = require('merge2'),
 	source = './src/vignette.ts',
 	destination = './dist';
 
 gulp.task('compile', function () {
-	return gulp.src(source)
-		.pipe(ts()).js
-		.pipe(gulp.dest(destination));
+	var tsResult = gulp.src(source)
+		.pipe(ts({
+			declaration: true
+		}));
+
+	return merge([
+		tsResult.dts.pipe(gulp.dest(destination)),
+		tsResult.js.pipe(gulp.dest(destination))
+	]);
 });
 
 gulp.task('compileAMD', function () {
