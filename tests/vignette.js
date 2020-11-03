@@ -1,3 +1,5 @@
+const Vignette = require('../dist/vignette').default;
+
 QUnit.module('Vignette tests');
 
 QUnit.test('Vignette creates thumbnail URL', function () {

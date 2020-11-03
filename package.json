@@ -3,6 +3,7 @@
   "version": "2.9.0",
   "description": "Client-side interface for Vignette thumbnailer",
   "main": "dist/vignette.cjs",
+  "typings": "dist/vignette.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/Wikia/vignette-js.git"
@@ -13,9 +14,8 @@
   "license": "MIT",
   "devDependencies": {
     "gulp": "3.x.x",
-    "gulp-rename": "1.2.x",
     "gulp-typescript": "2.x.x",
-    "gulp-wrap": "0.5.x",
+    "merge2": "^1.4.1",
     "qunit": "0.x.x"
   }
 }

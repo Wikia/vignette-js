@@ -3,7 +3,7 @@
  */
 'use strict';
 
-interface ImageUrlParameters {
+export interface ImageUrlParameters {
 	domain: string;
 	cacheBuster: string;
 	wikiaBucket: string;
@@ -11,7 +11,7 @@ interface ImageUrlParameters {
 	imagePath: string;
 }
 
-interface ThumbnailOptions {
+export interface ThumbnailOptions {
 	frame?: number;
 	height?: number;
 	mode?: string;
@@ -22,7 +22,7 @@ interface ThumbnailOptions {
 	yOffset2?: number;
 }
 
-class Vignette {
+export default class Vignette {
 	private static imagePathRegExp: RegExp = /\/\/(vignette|static)(\d|-poz)?\.(wikia|fandom)/;
 	private static domainRegExp: RegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)/;
 	private static legacyPathRegExp: RegExp = /(wikia-dev.(pl|us|com)|[^.]+.nocookie.net)\/__cb[\d]+\/.*$/;
