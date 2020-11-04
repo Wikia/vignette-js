@@ -2,7 +2,7 @@
   "name": "vignette",
   "version": "2.9.1",
   "description": "Client-side interface for Vignette thumbnailer",
-  "main": "dist/vignette.cjs",
+  "main": "dist/vignette.js",
   "typings": "dist/vignette.d.ts",
   "repository": {
     "type": "git",
