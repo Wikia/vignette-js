@@ -1,5 +1,5 @@
 {
-  "name": "vignette",
+  "name": "@fandom/vignette-js",
   "version": "2.9.2",
   "description": "Client-side interface for Vignette thumbnailer",
   "main": "dist/vignette.js",
