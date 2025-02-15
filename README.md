@@ -3,6 +3,20 @@ vignette-js
 
 Client-side interface for interacting with [Vignette](https://github.com/Wikia/vignette)
 
+## NPM Package
+
+This can be installed in your project by doing
+
+```
+npm i @fandom/vignette-js
+```
+
+or
+
+```
+yarn add @fandom/vignette-js
+```
+
 ## Usage
 
 To get a Vignette thumbnail path for an image, use the `getThumbURL` method.
@@ -69,4 +83,3 @@ A few examples of valid options:
 ## Issues
 
 If you find a bug in this library or see that it's not currently up-to-spec with [Vignette core](https://github.com/wikia/vignette), please open a new Github issue in this repository.
- 
